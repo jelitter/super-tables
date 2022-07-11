@@ -1,0 +1,46 @@
+<div class="left">
+  <!-- radio -->
+  <form (change)="onBorderChange()">
+    <label>
+      <input
+        type="radio"
+        name="border"
+        value="honeywell"
+        [(ngModel)]="border"
+        checked
+      />
+      Double
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="border"
+        value="norc"
+        [(ngModel)]="border"
+        checked
+      />
+      Single
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="border"
+        value="ramac"
+        [(ngModel)]="border"
+        checked
+      />
+      ASCII
+    </label>
+  </form>
+</div>
+<div class="right">
+  <pre
+    class="right-top"
+    contenteditable="true"
+    (input)="onUserPropertyChanged($event)"
+  ></pre>
+  <pre class="right-bottom">{{ outputText }}</pre>
+  <button class="copy" [class.copied]="copied" [class.show]="outputText?.length! > 0" (click)="copyToClipboard()">
+    {{ copied ? "Copied!" : "Copy" }}
+  </button>
+</div>
