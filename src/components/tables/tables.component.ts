@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { fadeInOut } from 'src/animations';
 import { getBorderCharacters, table } from 'table';
 
 const DEFAULT_SEPARATOR = '\t';
@@ -7,6 +8,7 @@ const DEFAULT_SEPARATOR = '\t';
   selector: 'app-tables',
   templateUrl: './tables.component.html',
   styleUrls: ['./tables.component.scss'],
+  animations: [fadeInOut(300)],
 })
 export class TablesComponent implements OnInit {
   border = 'norc';
@@ -74,7 +76,10 @@ export class TablesComponent implements OnInit {
         .filter((line) => line.trim().length > 0);
 
       const lineLength = Math.max(
-        ...rows.map((line: string) => line.split(',').length)
+        ...rows.map(
+          (line: string) =>
+            line.split(this.separator || DEFAULT_SEPARATOR).length
+        )
       );
 
       const data = rows

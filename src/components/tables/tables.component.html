@@ -90,7 +90,7 @@
     contenteditable="true"
     (input)="onUserPropertyChanged($event)"
   ></pre>
-  <pre class="right-bottom">{{ outputText }}</pre>
+  <pre class="right-bottom" [@fadeInOut]="outputText">{{ outputText }}</pre>
   <button
     class="copy"
     [class.copied]="copied"

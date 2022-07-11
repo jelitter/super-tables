@@ -5,12 +5,19 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AboutComponent } from '@components/about/about.component';
 import { TablesComponent } from '@components/tables/tables.component';
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 @NgModule({
   declarations: [AppComponent, TablesComponent, AboutComponent],
-  imports: [BrowserModule, AppRoutingModule, CommonModule, FormsModule],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    CommonModule,
+    FormsModule,
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
