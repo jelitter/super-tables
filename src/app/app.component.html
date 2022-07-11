@@ -1,13 +1,17 @@
-<nav>
+<!-- <nav>
   <a routerLink="tables">Tables</a>
   <a routerLink="about">About</a>
-  <!-- Dark mode toggle -->
-
   <label id="theme-switch" class="theme-switch" for="checkbox_theme">
-    <input type="checkbox" id="checkbox_theme" [(ngModel)]="darkMode" (change)="switchTheme($event)" />
+    <input
+      type="checkbox"
+      id="checkbox_theme"
+      [(ngModel)]="darkMode"
+      (change)="switchTheme($event)"
+    />
   </label>
-</nav>
+</nav> -->
+
+<!-- font awesome table icon -->
+<h1><i class="fas fa-table"></i>Text Tables</h1>
 
 <router-outlet></router-outlet>
-
-<footer>Stuff</footer>

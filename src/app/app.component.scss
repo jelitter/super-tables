@@ -1,7 +1,7 @@
 :host {
   height: 100%;
   display: grid;
-  grid-template-rows: 2rem 1fr 2rem;
+  grid-template-rows: 2rem 1fr;
   gap: 1rem;
   padding: 1rem 0;
   padding: 1rem;
@@ -11,6 +11,15 @@
     height: 2rem;
     display: flex;
     gap: 1rem;
+  }
+
+  h1 {
+    align-items: center;
+    color: var(--accent);
+    display: flex;
+    font-size: 1.5rem;
+    gap: 1rem;
+    margin: 0;
   }
 
   router-outlet {

@@ -9,20 +9,22 @@ const DEFAULT_SEPARATOR = '\t';
   styleUrls: ['./tables.component.scss'],
 })
 export class TablesComponent implements OnInit {
+  border = 'norc';
+  borders = ['honeywell', 'norc', 'ramac', 'void'];
+  copied = false;
   inputText: string = '';
   outputText: string = '';
   separator: string = null!;
-  border = 'honeywell';
-  copied = false;
-  borders = ['honeywell', 'norc', 'ramac', 'void'];
+  showHeaders = true;
+  showAllHorizontalLines = false;
+
+  private empties = new Array(100).fill('');
 
   constructor() {}
 
   ngOnInit() {}
 
   public async onUserPropertyChanged(event: any = null) {
-    console.log({ event });
-
     event.preventDefault();
     event.stopPropagation();
 
@@ -49,32 +51,51 @@ export class TablesComponent implements OnInit {
   }
 
   private drawTable() {
-    if (this.inputText === '') {
-      this.outputText = '';
-      return;
+    try {
+      if (this.inputText === '') {
+        this.outputText = '';
+        return;
+      }
+
+      const config = {
+        border: getBorderCharacters(this.border),
+        drawHorizontalLine: (lineIndex: number, rowCount: number) => {
+          return (
+            this.showAllHorizontalLines ||
+            lineIndex === 0 ||
+            (this.showHeaders && lineIndex === 1) ||
+            lineIndex === rowCount
+          );
+        },
+      };
+
+      const rows = this.inputText
+        .split(/\r?\n/)
+        .filter((line) => line.trim().length > 0);
+
+      const lineLength = Math.max(
+        ...rows.map((line: string) => line.split(',').length)
+      );
+
+      const data = rows
+        .map((line: any) =>
+          [
+            ...line.split(this.separator || DEFAULT_SEPARATOR),
+            ...this.empties,
+          ].slice(0, lineLength)
+        )
+        .map((e) => e ?? '');
+
+      // rows.map((line: any) => line.split(this.separator || DEFAULT_SEPARATOR))
+      // .map((e) => e ?? '');
+
+      this.outputText = table(data, config).trim();
+    } catch (error) {
+      console.warn(error);
     }
-
-    const config = { border: getBorderCharacters(this.border) };
-
-    const data = this.inputText
-      .split(/\r?\n/)
-      .filter((line) => line.trim().length > 0)
-      .map((line: any) => line.split(this.separator || DEFAULT_SEPARATOR))
-      .map((e) => e ?? '');
-
-    this.outputText = table(data, config).trim();
-
-    console.table(this.outputText);
-
-    console.log({
-      inputText: this.inputText,
-      outputText: this.outputText,
-      separator: this.separator,
-    });
   }
 
   copyToClipboard() {
-    // copy content of this.outputText to clipboard
     const selBox = document.createElement('textarea');
     selBox.style.position = 'fixed';
     selBox.style.left = '0';

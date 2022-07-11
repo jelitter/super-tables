@@ -2,15 +2,19 @@
   <!-- radio -->
   <form [noValidate]="true" (change)="onSettingsChange()">
     <label>
-      <input
-        type="radio"
-        name="border"
-        value="honeywell"
-        [(ngModel)]="border"
-        checked
-      />
-      Double
+      <input type="checkbox" name="headers" [(ngModel)]="showHeaders" />
+      Headers 1st row
     </label>
+    <label>
+      <input
+        type="checkbox"
+        name="horizontal-lines"
+        [(ngModel)]="showAllHorizontalLines"
+      />
+      All horizontal lines
+    </label>
+
+    <div>Border style</div>
     <label>
       <input
         type="radio"
@@ -20,6 +24,16 @@
         checked
       />
       Single
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="border"
+        value="honeywell"
+        [(ngModel)]="border"
+        checked
+      />
+      Double
     </label>
     <label>
       <input
@@ -46,9 +60,18 @@
       Separator
 
       <div class="separators">
-        <button [class.selected]="isSelected('\t')" (click)="setSeparator('\t')">Tab</button>
-        <button [class.selected]="isSelected(',')" (click)="setSeparator(',')">,</button>
-        <button [class.selected]="isSelected('|')" (click)="setSeparator('|')">|</button>
+        <button
+          [class.selected]="isSelected('\t')"
+          (click)="setSeparator('\t')"
+        >
+          Tab
+        </button>
+        <button [class.selected]="isSelected(',')" (click)="setSeparator(',')">
+          ,
+        </button>
+        <button [class.selected]="isSelected('|')" (click)="setSeparator('|')">
+          |
+        </button>
 
         <input
           type="text"
@@ -74,6 +97,7 @@
     [class.show]="outputText?.length! > 0"
     (click)="copyToClipboard()"
   >
+    <i class="fas fa-copy"></i>
     {{ copied ? "Copied!" : "Copy" }}
   </button>
 </div>

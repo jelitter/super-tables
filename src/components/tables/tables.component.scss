@@ -108,7 +108,10 @@
     }
 
     button.copy {
-      bottom: 5rem;
+      align-items: center;
+      bottom: 2rem;
+      display: flex;
+      gap: 0.5rem;
       margin: 0;
       opacity: 0;
       pointer-events: none;
@@ -116,7 +119,7 @@
       right: 2rem;
       text-align: center;
       transition: all 0.35s;
-      width: 6rem;
+      width: 7rem;
 
       &.show {
         opacity: 1;
