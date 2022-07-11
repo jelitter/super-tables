@@ -1,6 +1,6 @@
 <div class="left">
   <!-- radio -->
-  <form (change)="onBorderChange()">
+  <form [noValidate]="true" (change)="onSettingsChange()">
     <label>
       <input
         type="radio"
@@ -31,6 +31,34 @@
       />
       ASCII
     </label>
+    <label>
+      <input
+        type="radio"
+        name="border"
+        value="void"
+        [(ngModel)]="border"
+        checked
+      />
+      None
+    </label>
+
+    <label class="separator" for="separator">
+      Separator
+
+      <div class="separators">
+        <button [class.selected]="isSelected('\t')" (click)="setSeparator('\t')">Tab</button>
+        <button [class.selected]="isSelected(',')" (click)="setSeparator(',')">,</button>
+        <button [class.selected]="isSelected('|')" (click)="setSeparator('|')">|</button>
+
+        <input
+          type="text"
+          id="separator"
+          name="separator"
+          [(ngModel)]="separator"
+          (input)="onSettingsChange()"
+        />
+      </div>
+    </label>
   </form>
 </div>
 <div class="right">
@@ -40,7 +68,12 @@
     (input)="onUserPropertyChanged($event)"
   ></pre>
   <pre class="right-bottom">{{ outputText }}</pre>
-  <button class="copy" [class.copied]="copied" [class.show]="outputText?.length! > 0" (click)="copyToClipboard()">
+  <button
+    class="copy"
+    [class.copied]="copied"
+    [class.show]="outputText?.length! > 0"
+    (click)="copyToClipboard()"
+  >
     {{ copied ? "Copied!" : "Copy" }}
   </button>
 </div>

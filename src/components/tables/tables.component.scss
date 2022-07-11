@@ -4,7 +4,7 @@
 
   display: grid;
   gap: 1rem;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 300px 1fr;
   overflow: hidden;
 
   .left {
@@ -25,6 +25,46 @@
       &:hover {
         background: var(--bg);
       }
+
+      &.separator {
+        padding: 0.5rem;
+        margin-top: 1rem;
+        border-top: solid 1px;
+        padding-top: 0.5rem;
+        flex-direction: column;
+        border-radius: 0.25rem;
+
+        .separators {
+          display: grid;
+          gap: 0.75rem;
+          grid-template-columns: repeat(3, 1fr) auto;
+
+          button,
+          input {
+            margin: 0;
+            width: 2.5rem;
+            display: flex;
+            height: 2.5rem;
+            font-size: 1.25rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2.5rem;
+
+            &:first-of-type {
+              font-size: 0.9rem;
+            }
+          }
+
+          input {
+            width: 100%;
+            text-align: center;
+          }
+
+          &.selected {
+            background-color: var(--green);
+          }
+        }
+      }
     }
   }
 
@@ -42,7 +82,7 @@
       border-radius: 0.25rem;
       border: none;
       font-family: "Cascadia Code", Consolas, monospace;
-      font-size: 12px;
+      font-size: 14px;
       height: 100%;
       margin: 0;
       outline: none;
@@ -54,9 +94,17 @@
     }
 
     &-top {
+      &:empty::after {
+        content: "Paste data here";
+        opacity: 0.5;
+      }
     }
 
     &-bottom {
+      &:empty::after {
+        content: "Output will appear here";
+        opacity: 0.5;
+      }
     }
 
     button.copy {

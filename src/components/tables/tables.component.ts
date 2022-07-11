@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { getBorderCharacters, table } from 'table';
 
+const DEFAULT_SEPARATOR = '\t';
+
 @Component({
   selector: 'app-tables',
   templateUrl: './tables.component.html',
@@ -9,6 +11,7 @@ import { getBorderCharacters, table } from 'table';
 export class TablesComponent implements OnInit {
   inputText: string = '';
   outputText: string = '';
+  separator: string = null!;
   border = 'honeywell';
   copied = false;
   borders = ['honeywell', 'norc', 'ramac', 'void'];
@@ -19,12 +22,10 @@ export class TablesComponent implements OnInit {
 
   public async onUserPropertyChanged(event: any = null) {
     console.log({ event });
-    const isBlurEvent = event.type === 'blur';
 
     event.preventDefault();
     event.stopPropagation();
 
-    const prevValue = this.inputText;
     const newValue = event.target.innerText;
 
     this.inputText = newValue;
@@ -32,21 +33,44 @@ export class TablesComponent implements OnInit {
     this.drawTable();
   }
 
-  onBorderChange() {
+  onSettingsChange() {
+    setTimeout(() => {
+      this.drawTable();
+    }, 16);
+  }
+
+  setSeparator(sep: string) {
+    this.separator = sep;
     this.drawTable();
   }
 
+  isSelected(sep: string) {
+    return sep === this.separator;
+  }
+
   private drawTable() {
-    const data = this.inputText
-      .split(/\r?\n/)
-      .filter((line) => line.trim().length > 0)
-      .map((line: any) => line.split('\t'));
+    if (this.inputText === '') {
+      this.outputText = '';
+      return;
+    }
 
     const config = { border: getBorderCharacters(this.border) };
 
+    const data = this.inputText
+      .split(/\r?\n/)
+      .filter((line) => line.trim().length > 0)
+      .map((line: any) => line.split(this.separator || DEFAULT_SEPARATOR))
+      .map((e) => e ?? '');
+
     this.outputText = table(data, config).trim();
 
-    console.log({ inputText: this.inputText, outputText: this.outputText });
+    console.table(this.outputText);
+
+    console.log({
+      inputText: this.inputText,
+      outputText: this.outputText,
+      separator: this.separator,
+    });
   }
 
   copyToClipboard() {
