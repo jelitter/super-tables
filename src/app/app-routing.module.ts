@@ -4,9 +4,9 @@ import { AboutComponent } from 'src/components/about/about.component';
 import { TablesComponent } from 'src/components/tables/tables.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'tables', pathMatch: 'full' },
+  { path: '', component: TablesComponent },
   { path: 'about', component: AboutComponent },
-  { path: 'tables', component: TablesComponent },
+  { path: 'tables', redirectTo: '', pathMatch: 'full' },
 ];
 
 @NgModule({
