@@ -1,100 +1,195 @@
-<div class="left">
+<div class="left w-auto">
   <!-- radio -->
-  <form [noValidate]="true" (change)="onSettingsChange()">
-    <label>
-      <input type="checkbox" name="headers" [(ngModel)]="showHeaders" />
+  <form
+    [noValidate]="true"
+    (change)="onSettingsChange()"
+    class="flex flex-col gap-1 pt-4"
+  >
+    <label class="flex align-middle gap-4">
+      <input
+        type="checkbox"
+        name="headers"
+        [(ngModel)]="showHeaders"
+        class="toggle toggle-primary"
+        [disabled]="showAllHorizontalLines"
+      />
       Headers 1st row
     </label>
-    <label>
+    <label class="flex align-middle gap-4">
       <input
         type="checkbox"
         name="horizontal-lines"
         [(ngModel)]="showAllHorizontalLines"
+        class="toggle toggle-primary"
       />
       All horizontal lines
     </label>
 
-    <div>Border style</div>
-    <label>
+    <div class="divider m-0"></div>
+
+    <label class="label">
+      <span class="label-text">Border Style</span>
+    </label>
+
+    <label class="flex align-middle gap-4">
       <input
         type="radio"
         name="border"
         value="norc"
         [(ngModel)]="border"
-        checked
+        class="radio radio-primary"
       />
       Single
     </label>
-    <label>
+    <label class="flex align-middle gap-4">
       <input
         type="radio"
         name="border"
         value="honeywell"
         [(ngModel)]="border"
-        checked
+        class="radio radio-primary"
       />
       Double
     </label>
-    <label>
+    <label class="flex align-middle gap-4">
       <input
         type="radio"
         name="border"
         value="ramac"
         [(ngModel)]="border"
-        checked
+        class="radio radio-primary"
       />
       ASCII
     </label>
-    <label>
+    <label class="flex align-middle gap-4">
       <input
         type="radio"
         name="border"
         value="void"
         [(ngModel)]="border"
-        checked
+        class="radio radio-primary"
       />
       None
     </label>
 
-    <label class="separator" for="separator">
-      Separator
+    <div class="divider m-0"></div>
 
-      <div class="separators">
-        <button
-          [class.selected]="isSelected('\t')"
-          (click)="setSeparator('\t')"
-        >
-          Tab
-        </button>
-        <button [class.selected]="isSelected(',')" (click)="setSeparator(',')">
-          ,
-        </button>
-        <button [class.selected]="isSelected('|')" (click)="setSeparator('|')">
-          |
-        </button>
-
+    <div class="pr-4 flex flex-col box-border gap-2">
+      <label class="label">
+        <span class="label-text"
+          >Separator: <span class="italic">{{ activeSeparator }}</span>
+          <span *ngIf="separator === Separators.AUTO_DETECT" class="text-2xs">
+            (auto-detected)</span
+          >
+        </span>
+      </label>
+      <div class="btn-group">
         <input
-          type="text"
-          id="separator"
-          name="separator"
+          type="radio"
+          name="options"
+          data-title="Auto"
+          class="btn btn-square btn-ghost"
+          [value]="Separators.AUTO_DETECT"
+          [checked]="separator === Separators.AUTO_DETECT && !customSeparator"
           [(ngModel)]="separator"
-          (input)="onSettingsChange()"
+        />
+        <input
+          type="radio"
+          name="options"
+          data-title="Tab"
+          class="btn btn-square btn-ghost"
+          [value]="Separators.TAB"
+          [checked]="separator === Separators.TAB && !customSeparator"
+          [(ngModel)]="separator"
+        />
+        <input
+          type="radio"
+          name="options"
+          data-title="4 sp"
+          class="btn btn-square btn-ghost"
+          [value]="Separators.FOUR_SPACES"
+          [checked]="separator === Separators.FOUR_SPACES && !customSeparator"
+          [(ngModel)]="separator"
+        />
+        <input
+          type="radio"
+          name="options"
+          data-title=","
+          class="btn btn-square btn-ghost"
+          [value]="Separators.COMMA"
+          [checked]="separator === Separators.COMMA && !customSeparator"
+          [(ngModel)]="separator"
+        />
+        <input
+          type="radio"
+          name="options"
+          data-title="|"
+          class="btn btn-square btn-ghost"
+          [value]="Separators.PIPE"
+          [checked]="separator === Separators.PIPE && !customSeparator"
+          [(ngModel)]="separator"
         />
       </div>
-    </label>
+      <div class="form-control">
+        <label class="input-group input-group-sm">
+          <span>Custom</span>
+          <input
+            type="text"
+            class="input input-bordered input-sm w-40"
+            name="separator"
+            [(ngModel)]="customSeparator"
+            (input)="onSettingsChange()"
+          />
+        </label>
+      </div>
+    </div>
   </form>
 </div>
-<div class="right">
+
+<div class="divider divider-horizontal m-0 w-1"></div>
+
+<div
+  class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden"
+>
   <pre
-    class="right-top"
+    class="right-top px-4 py-2 rounded outline-0 overflow-auto :active:border-2"
     contenteditable="true"
     (input)="onUserPropertyChanged($event)"
   ></pre>
-  <pre class="right-bottom" [@fadeInOut]="outputText">{{ outputText }}</pre>
+
   <button
-    class="copy"
-    [class.copied]="copied"
-    [class.show]="outputText?.length! > 0"
+    class="btn btn-circle btn-sm absolute dark:btn-outline top-20 right-6"
+    *ngIf="(inputText ?? '').length > 0"
+    (click)="clearInput()"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M6 18L18 6M6 6l12 12"
+      />
+    </svg>
+  </button>
+
+  <div class="divider m-0 h-1"></div>
+
+  <pre
+    class="right-bottom px-4 py-2 rounded overflow-auto leading-[19px]"
+    placeholder="Paste data here"
+    >{{ outputText }}</pre
+  >
+
+  <button
+    class="btn btn-primary gap-2 absolute bottom-6 right-6 w-28 opacity-0 opa"
+    [class.opacity-100]="outputText?.length! > 0"
+    [class.btn-success]="copied"
     (click)="copyToClipboard()"
   >
     <i class="fas fa-copy"></i>

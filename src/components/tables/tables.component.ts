@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { fadeInOut } from 'src/animations';
 import { getBorderCharacters, table } from 'table';
-
-const DEFAULT_SEPARATOR = '\t';
+import { initialInput } from './tables.config';
 
 @Component({
   selector: 'app-tables',
@@ -11,20 +10,61 @@ const DEFAULT_SEPARATOR = '\t';
   animations: [fadeInOut(300)],
 })
 export class TablesComponent implements OnInit {
+  Separators = {
+    AUTO_DETECT: 'auto',
+    TAB: '\t',
+    FOUR_SPACES: '    ',
+    COMMA: ',',
+    PIPE: '|',
+  };
+
   border = 'norc';
   borders = ['honeywell', 'norc', 'ramac', 'void'];
   copied = false;
-  inputText: string = '';
+  inputText: string | null = initialInput;
   outputText: string = '';
-  separator: string = null!;
+  separator: string = this.Separators.AUTO_DETECT;
+  customSeparator: string = null!;
   showHeaders = true;
   showAllHorizontalLines = false;
 
   private empties = new Array(100).fill('');
 
+  get activeSeparator() {
+    const sep: string = this.customSeparator
+      ? this.customSeparator
+      : this.separator === this.Separators.AUTO_DETECT
+      ? this.getSeparator()
+      : this.separator;
+
+    // Get 'Separators' key matching 'sep' value:
+    const entry = Object.entries(this.Separators).find(
+      (entry) => entry[1] === sep
+    );
+
+    const result = entry?.[0] ?? '???';
+
+    return result;
+  }
+
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    const inputPre = (document.querySelector('pre.right-top') as HTMLElement)!;
+    inputPre.innerText = this.inputText ?? '';
+    this.drawTable();
+
+    //  Alt + Shift + F (autoformat)
+    document.addEventListener('keydown', (event) => {
+      if (event.altKey && event.shiftKey && event.key === 'F') {
+        const rows = (this.inputText ?? '')
+          .split(/\r?\n/)
+          .filter((line) => line.trim().length > 0);
+        const formattedInput = rows.map((line) => line.trim()).join('\n');
+        this.setInput(formattedInput);
+      }
+    });
+  }
 
   public async onUserPropertyChanged(event: any = null) {
     event.preventDefault();
@@ -71,23 +111,22 @@ export class TablesComponent implements OnInit {
         },
       };
 
-      const rows = this.inputText
+      const rows = (this.inputText ?? '')
         .split(/\r?\n/)
         .filter((line) => line.trim().length > 0);
 
+      const separator =
+        this.customSeparator || this.separator === this.Separators.AUTO_DETECT
+          ? this.getSeparator()
+          : this.separator;
+
       const lineLength = Math.max(
-        ...rows.map(
-          (line: string) =>
-            line.split(this.separator || DEFAULT_SEPARATOR).length
-        )
+        ...rows.map((line: string) => line.split(separator).length)
       );
 
       const data = rows
         .map((line: any) =>
-          [
-            ...line.split(this.separator || DEFAULT_SEPARATOR),
-            ...this.empties,
-          ].slice(0, lineLength)
+          [...line.split(separator), ...this.empties].slice(0, lineLength)
         )
         .map((e) => e ?? '');
 
@@ -98,6 +137,39 @@ export class TablesComponent implements OnInit {
     } catch (error) {
       console.warn(error);
     }
+  }
+
+  public getSeparator(): string {
+    const rows = (this.inputText ?? '')
+      .split(/\r?\n/)
+      .filter((line) => line.trim().length > 0);
+
+    const separators = Object.values(this.Separators);
+
+    const separatorCounts = separators.map((sep) => {
+      return rows.reduce((acc, line) => {
+        return acc + line.split(sep).length;
+      }, 0);
+    });
+
+    const maxCount = Math.max(...separatorCounts);
+
+    const auto = separators.find(
+      (sep) => separatorCounts[separators.indexOf(sep)] === maxCount
+    )!;
+
+    return auto;
+  }
+
+  setInput(text: string) {
+    this.inputText = text;
+    const inputPre = (document.querySelector('pre.right-top') as HTMLElement)!;
+    inputPre.innerText = this.inputText ?? '';
+    this.drawTable();
+  }
+
+  clearInput() {
+    this.setInput('');
   }
 
   copyToClipboard() {
@@ -115,6 +187,6 @@ export class TablesComponent implements OnInit {
     this.copied = true;
     setTimeout(() => {
       this.copied = false;
-    }, 1000);
+    }, 1500);
   }
 }

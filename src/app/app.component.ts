@@ -8,25 +8,21 @@ import { Component, OnInit } from '@angular/core';
 export class AppComponent implements OnInit {
   title = 'tables';
   isDarkMode = false;
-  darkMode: boolean = false;
 
   ngOnInit(): void {
-    this.isDarkMode =
-      localStorage.getItem('isDarkMode') === 'true' ||
-      window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme: 'dark' | 'light' =
+      (localStorage.getItem('theme') as 'dark' | 'light') || 'light';
+    this.setTheme(theme);
   }
 
   switchTheme(e: any) {
-    if (e.target.checked) {
-      localStorage.setItem('theme', 'dark');
-      document.documentElement.setAttribute('data-theme', 'dark');
-      this.darkMode = true;
-    } else {
-      localStorage.setItem('theme', 'light');
-      document.documentElement.setAttribute('data-theme', 'light');
-      this.darkMode = false;
-    }
+    const theme = e.target.checked ? 'dark' : 'light';
+    this.setTheme(theme);
+  }
 
-    console.log({ darkMode: this.darkMode });
+  setTheme(theme: 'dark' | 'light') {
+    localStorage.setItem('theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+    this.isDarkMode = theme === 'dark';
   }
 }
