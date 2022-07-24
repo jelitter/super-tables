@@ -3,7 +3,7 @@
   <form
     [noValidate]="true"
     (change)="onSettingsChange()"
-    class="flex flex-col gap-1 pt-4"
+    class="flex flex-col gap-1 pt-4 pl-4"
   >
     <label class="flex gap-4 align-middle">
       <input
@@ -206,7 +206,7 @@
   >
 
   <button
-    class="absolute gap-2 opacity-0 btn btn-primary bottom-6 right-6 w-28 opa"
+    class="absolute gap-2 opacity-0 btn btn-primary btn-sm bottom-4 right-4 w-28 opa"
     [class.opacity-100]="outputText.length > 0"
     [class.btn-success]="copied"
     (click)="copyToClipboard()"
