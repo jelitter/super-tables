@@ -4,7 +4,7 @@
     (change)="onSettingsChange()"
     class="flex flex-col gap-1 pt-4 pl-4"
   >
-    <label class="flex gap-4 align-middle">
+    <label class="flex gap-4 align-middle cursor-pointer">
       <input
         type="checkbox"
         name="headers"
@@ -14,7 +14,7 @@
       />
       Headers 1st row
     </label>
-    <label class="flex gap-4 align-middle">
+    <label class="flex gap-4 align-middle cursor-pointer">
       <input
         type="checkbox"
         name="horizontal-lines"
@@ -23,7 +23,7 @@
       />
       All horizontal lines
     </label>
-    <label class="flex gap-4 align-middle">
+    <label class="flex gap-4 align-middle cursor-pointer">
       <input
         type="checkbox"
         name="horizontal-lines"
@@ -35,11 +35,11 @@
 
     <div class="m-0 divider"></div>
 
-    <label class="label">
+    <label class="cursor-pointer label">
       <span class="label-text">Border Style</span>
     </label>
 
-    <label class="flex gap-4 align-middle">
+    <label class="flex gap-4 align-middle cursor-pointer">
       <input
         type="radio"
         name="border"
@@ -49,7 +49,7 @@
       />
       Single
     </label>
-    <label class="flex gap-4 align-middle">
+    <label class="flex gap-4 align-middle cursor-pointer">
       <input
         type="radio"
         name="border"
@@ -59,7 +59,7 @@
       />
       Double
     </label>
-    <label class="flex gap-4 align-middle">
+    <label class="flex gap-4 align-middle cursor-pointer">
       <input
         type="radio"
         name="border"
@@ -69,7 +69,7 @@
       />
       ASCII
     </label>
-    <label class="flex gap-4 align-middle">
+    <label class="flex gap-4 align-middle cursor-pointer">
       <input
         type="radio"
         name="border"
@@ -83,7 +83,7 @@
     <div class="m-0 divider"></div>
 
     <div class="box-border flex flex-col gap-2 pr-4">
-      <label class="label">
+      <label class="cursor-pointer label">
         <span class="label-text"
           >Separator: <span class="italic">{{ activeSeparator }}</span>
           <span *ngIf="separator === Separators.AUTO_DETECT" class="text-2xs">
@@ -139,7 +139,7 @@
         />
       </div>
       <div class="form-control">
-        <label class="input-group input-group-sm">
+        <label class="cursor-pointer input-group input-group-sm">
           <span>Custom</span>
           <input
             type="text"
@@ -154,7 +154,7 @@
 
     <div class="m-0 divider"></div>
 
-    <label class="label">
+    <label class="cursor-pointer label">
       <div class="label-text">Tips:</div>
     </label>
 
@@ -170,31 +170,36 @@
   class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden relative"
 >
   <pre
-    class="px-4 py-2 overflow-auto rounded right-top outline-0 :active:border-2"
+    class="px-4 py-2 overflow-auto rounded right-top outline-0 :active:border-2 after:content-['Paste data here']"
     contenteditable="true"
     (input)="onUserPropertyChanged($event)"
   ></pre>
 
-  <button
-    class="absolute btn btn-circle btn-sm dark:btn-outline top-4 right-6"
-    *ngIf="(inputText ?? '').length > 0"
-    (click)="clearInput()"
+  <div
+    class="absolute flex justify-center top-4 right-6 tooltip tooltip-bottom"
+    data-tip="Clear input"
   >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      class="w-6 h-6"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
+    <button
+      class="btn btn-circle btn-sm dark:btn-outline"
+      *ngIf="(inputText ?? '').length > 0"
+      (click)="clearInput()"
     >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M6 18L18 6M6 6l12 12"
-      />
-    </svg>
-  </button>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-6 h-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    </button>
+  </div>
 
   <div class="h-1 m-0 divider"></div>
 
