@@ -36,8 +36,26 @@
     },
     {
       "files": ["*.html"],
-      "extends": ["plugin:@angular-eslint/template/recommended"],
-      "rules": {}
+      "extends": ["plugin:@angular-eslint/template/recommended"]
     }
-  ]
+  ],
+  "rules": {
+    "prefer-const": 1,
+    "@typescript-eslint/no-floating-promises": 1,
+    "@typescript-eslint/explicit-member-accessibility": [
+      1,
+      {
+        "accessibility": "explicit",
+        "overrides": {
+          "accessors": "no-public",
+          "constructors": "no-public",
+          "methods": "explicit",
+          "properties": "off",
+          "parameterProperties": "explicit"
+        }
+      }
+    ],
+    "@typescript-eslint/no-unused-expressions": ["error"],
+    "@typescript-eslint/no-unused-vars": ["error"]
+  }
 }

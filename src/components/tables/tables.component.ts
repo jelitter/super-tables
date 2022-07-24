@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { toTitleCase } from '@util/string';
 import { fadeInOut } from 'src/animations';
-import { getBorderCharacters, table } from 'table';
+import { Alignment, getBorderCharacters, table } from 'table';
 import { initialInput } from './tables.config';
+
+type ColWidth = { px: number; chars: number };
 
 @Component({
   selector: 'app-tables',
@@ -11,7 +13,12 @@ import { initialInput } from './tables.config';
   animations: [fadeInOut(300)]
 })
 export class TablesComponent implements OnInit {
-  Separators = {
+  private timeout?: NodeJS.Timeout;
+  private empties: string[] = new Array(100).fill('');
+  private canvas = document.createElement('canvas');
+  private context = this.canvas.getContext('2d');
+
+  public Separators = {
     AUTO_DETECT: 'auto',
     TAB: '\t',
     FOUR_SPACES: '    ',
@@ -19,18 +26,22 @@ export class TablesComponent implements OnInit {
     PIPE: '|'
   };
 
-  border = 'norc';
-  borders = ['honeywell', 'norc', 'ramac', 'void'];
-  copied = false;
-  inputText: string | null = initialInput;
-  outputText: string = '';
-  separator: string = this.Separators.AUTO_DETECT;
-  customSeparator: string = null!;
-  showHeaders = true;
-  showAllHorizontalLines = false;
-  showEmptyAsDash = false;
-
-  private empties = new Array(100).fill('');
+  public alignments: Map<Alignment, Set<number>> = new Map([
+    ['left', new Set()],
+    ['center', new Set()],
+    ['right', new Set()]
+  ]);
+  public border = 'norc';
+  public borders = ['honeywell', 'norc', 'ramac', 'void'];
+  public columnWidths: ColWidth[] = [];
+  public copied = false;
+  public customSeparator: string = null!;
+  public inputText: string | null = initialInput;
+  public outputText: string = '';
+  public separator: string = this.Separators.AUTO_DETECT;
+  public showAllHorizontalLines = false;
+  public showEmptyAsDash = false;
+  public showHeaders = true;
 
   get activeSeparator() {
     const sep: string = this.customSeparator
@@ -43,7 +54,6 @@ export class TablesComponent implements OnInit {
       return 'None';
     }
 
-    // Get 'Separators' key matching 'sep' value:
     const entry = Object.entries(this.Separators).find(
       entry => entry[1] === sep
     );
@@ -55,8 +65,9 @@ export class TablesComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     const inputPre = (document.querySelector('pre.right-top') as HTMLElement)!;
+
     inputPre.innerText = this.inputText ?? '';
     this.drawTable();
 
@@ -83,74 +94,125 @@ export class TablesComponent implements OnInit {
     this.drawTable();
   }
 
-  onSettingsChange() {
+  public onSettingsChange() {
     setTimeout(() => {
       this.drawTable();
     }, 16);
   }
 
-  setSeparator(sep: string) {
+  public setSeparator(sep: string) {
     this.separator = sep;
     this.drawTable();
   }
 
-  isSelected(sep: string) {
+  public isSelected(sep: string) {
     return sep === this.separator;
   }
 
   private drawTable() {
-    try {
-      if (this.inputText === '') {
-        this.outputText = '';
-        return;
-      }
-
-      let rows = (this.inputText ?? '').split(/\r?\n/);
-
-      const dividersBefore = rows
-        .map((r, i) => (r.trim() === '---' ? i : null))
-        .filter(n => n !== null) as number[];
-
-      for (let i = dividersBefore.length - 1; i >= 0; i--) {
-        rows.splice(dividersBefore[i], 1);
-      }
-
-      const dividers = dividersBefore.map((d, i) => d - i);
-
-      const config = {
-        border: getBorderCharacters(this.border),
-        drawHorizontalLine: (lineIndex: number, rowCount: number) => {
-          return (
-            this.showAllHorizontalLines ||
-            lineIndex === 0 ||
-            (this.showHeaders && lineIndex === 1) ||
-            lineIndex === rowCount ||
-            dividers.includes(lineIndex)
-          );
+    this.debounceFunction(() => {
+      try {
+        if (this.inputText === '') {
+          this.outputText = '';
+          this.columnWidths = [];
+          return;
         }
-      };
 
-      const separator =
-        this.customSeparator || this.separator === this.Separators.AUTO_DETECT
-          ? this.getSeparator()
-          : this.separator;
+        const rows = (this.inputText ?? '').split(/\r?\n/);
 
-      const lineLength = Math.max(
-        ...rows.map((line: string) => line.split(separator).length)
-      );
+        const dividersBefore = rows
+          .map((r, i) => (r.trim() === '---' ? i : null))
+          .filter(n => n !== null) as number[];
 
-      const empty = this.showEmptyAsDash ? '—' : '';
+        for (let i = dividersBefore.length - 1; i >= 0; i--) {
+          rows.splice(dividersBefore[i], 1);
+        }
 
-      const data = rows
-        .map((line: any) =>
-          [...line.split(separator), ...this.empties].slice(0, lineLength)
-        )
-        .map(r => r.map(e => e || empty));
+        const dividers = dividersBefore.map((d, i) => d - i);
 
-      this.outputText = table(data, config).trim();
-    } catch (error) {
-      console.warn(error);
-    }
+        const config = {
+          border: getBorderCharacters(this.border),
+          drawHorizontalLine: (lineIndex: number, rowCount: number) => {
+            return (
+              this.showAllHorizontalLines ||
+              lineIndex === 0 ||
+              (this.showHeaders && lineIndex === 1) ||
+              lineIndex === rowCount ||
+              dividers.includes(lineIndex)
+            );
+          },
+          columns: this.columnWidths.map(() => ({
+            alignment: 'left' as Alignment,
+            width: 1
+          }))
+        };
+
+        const separator =
+          this.customSeparator || this.separator === this.Separators.AUTO_DETECT
+            ? this.getSeparator()
+            : this.separator;
+
+        const lineLength = Math.max(
+          ...rows.map((line: string) => line.split(separator).length)
+        );
+
+        const empty = this.showEmptyAsDash ? '—' : '';
+
+        const data = rows
+          .map((line: string) =>
+            [...line.split(separator), ...this.empties].slice(0, lineLength)
+          )
+          .map(row => row.map(word => word.trim() || empty));
+
+        const pxWidths = data.reduce(
+          (acc, row) =>
+            row.map((cell, i) =>
+              Math.max(
+                acc[i] ?? 0,
+                this.getTextWidth(
+                  cell.padEnd(5, 'x') + 'xxx',
+                  '16px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace'
+                )
+              )
+            ),
+          [] as number[]
+        );
+
+        const charWidths = data.reduce(
+          (acc, row) =>
+            row.map((cell, i) =>
+              Math.max(acc[i] ?? 0, Math.max(5, cell.trim().length))
+            ),
+          [] as number[]
+        );
+
+        this.columnWidths = pxWidths.map((px, i) => {
+          config.columns[i] = {
+            alignment: this.getColumnAlignment(i),
+            width: charWidths[i]
+          };
+
+          return {
+            px,
+            chars: charWidths[i]
+          };
+        });
+
+        this.columnWidths.forEach((_, i) => {
+          if (
+            !this.alignments.get('left')?.has(i) &&
+            !this.alignments.get('center')?.has(i) &&
+            !this.alignments.get('right')?.has(i)
+          ) {
+            this.alignments.get('left')?.add(i);
+          }
+        });
+
+        this.outputText = table(data, config).trim();
+      } catch (error) {
+        console.warn(error);
+      }
+    });
   }
 
   public getSeparator(): string {
@@ -176,18 +238,39 @@ export class TablesComponent implements OnInit {
     return auto;
   }
 
-  setInput(text: string) {
+  public setInput(text: string) {
     this.inputText = text;
     const inputPre = (document.querySelector('pre.right-top') as HTMLElement)!;
     inputPre.innerText = this.inputText ?? '';
     this.drawTable();
   }
 
-  clearInput() {
+  public clearInput() {
     this.setInput('');
   }
 
-  copyToClipboard() {
+  public alignColumn(index: number, alignment: Alignment) {
+    this.alignments.get('left')?.delete(index);
+    this.alignments.get('center')?.delete(index);
+    this.alignments.get('right')?.delete(index);
+    this.alignments.get(alignment)?.add(index);
+    this.drawTable();
+  }
+
+  public getColumnAlignment(index: number): Alignment {
+    if (this.alignments.get('left')?.has(index)) {
+      return 'left' as Alignment;
+    }
+    if (this.alignments.get('center')?.has(index)) {
+      return 'center' as Alignment;
+    }
+    if (this.alignments.get('right')?.has(index)) {
+      return 'right' as Alignment;
+    }
+    return 'left' as Alignment;
+  }
+
+  public copyToClipboard() {
     const selBox = document.createElement('textarea');
     selBox.style.position = 'fixed';
     selBox.style.left = '0';
@@ -203,5 +286,36 @@ export class TablesComponent implements OnInit {
     setTimeout(() => {
       this.copied = false;
     }, 1500);
+  }
+
+  private debounceFunction(
+    func: CallableFunction,
+    wait = 100,
+    immediate = false
+  ) {
+    const later = () => {
+      this.timeout = undefined;
+      if (!immediate) {
+        func();
+      }
+    };
+
+    const callNow = immediate && !this.timeout;
+
+    clearTimeout(this.timeout);
+    this.timeout = setTimeout(later, wait);
+    if (callNow) {
+      func();
+    }
+  }
+
+  public getTextWidth(text: string, font: string) {
+    if (this.context) {
+      this.context.font = font;
+      const width = Math.floor(this.context.measureText(text).width);
+      // console.log('Width for ' + text + ': ' + width);
+      return width;
+    }
+    return 0;
   }
 }
