@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { toTitleCase } from '@util/string';
 import { fadeInOut } from 'src/animations';
 import { getBorderCharacters, table } from 'table';
 import { initialInput } from './tables.config';
@@ -7,7 +8,7 @@ import { initialInput } from './tables.config';
   selector: 'app-tables',
   templateUrl: './tables.component.html',
   styleUrls: ['./tables.component.scss'],
-  animations: [fadeInOut(300)],
+  animations: [fadeInOut(300)]
 })
 export class TablesComponent implements OnInit {
   Separators = {
@@ -15,7 +16,7 @@ export class TablesComponent implements OnInit {
     TAB: '\t',
     FOUR_SPACES: '    ',
     COMMA: ',',
-    PIPE: '|',
+    PIPE: '|'
   };
 
   border = 'norc';
@@ -38,14 +39,18 @@ export class TablesComponent implements OnInit {
       ? this.getSeparator()
       : this.separator;
 
+    if (sep === this.Separators.AUTO_DETECT) {
+      return 'None';
+    }
+
     // Get 'Separators' key matching 'sep' value:
     const entry = Object.entries(this.Separators).find(
-      (entry) => entry[1] === sep
+      entry => entry[1] === sep
     );
 
-    const result = entry?.[0] ?? '???';
+    const result = entry?.[0] ?? '';
 
-    return result;
+    return toTitleCase(result);
   }
 
   constructor() {}
@@ -56,12 +61,12 @@ export class TablesComponent implements OnInit {
     this.drawTable();
 
     //  Alt + Shift + F (autoformat)
-    document.addEventListener('keydown', (event) => {
+    document.addEventListener('keydown', event => {
       if (event.altKey && event.shiftKey && event.key === 'F') {
         const rows = (this.inputText ?? '')
           .split(/\r?\n/)
-          .filter((line) => line.trim().length > 0);
-        const formattedInput = rows.map((line) => line.trim()).join('\n');
+          .filter(line => line.trim().length > 0);
+        const formattedInput = rows.map(line => line.trim()).join('\n');
         this.setInput(formattedInput);
       }
     });
@@ -101,13 +106,11 @@ export class TablesComponent implements OnInit {
       }
 
       let rows = (this.inputText ?? '').split(/\r?\n/);
-      // .filter((line) => line.trim().length > 0);
 
       const dividersBefore = rows
         .map((r, i) => (r.trim() === '---' ? i : null))
-        .filter((n) => n !== null) as number[];
+        .filter(n => n !== null) as number[];
 
-      // Remove lines with dividers:
       for (let i = dividersBefore.length - 1; i >= 0; i--) {
         rows.splice(dividersBefore[i], 1);
       }
@@ -124,7 +127,7 @@ export class TablesComponent implements OnInit {
             lineIndex === rowCount ||
             dividers.includes(lineIndex)
           );
-        },
+        }
       };
 
       const separator =
@@ -142,7 +145,7 @@ export class TablesComponent implements OnInit {
         .map((line: any) =>
           [...line.split(separator), ...this.empties].slice(0, lineLength)
         )
-        .map((r) => r.map((e) => e || empty));
+        .map(r => r.map(e => e || empty));
 
       this.outputText = table(data, config).trim();
     } catch (error) {
@@ -153,11 +156,11 @@ export class TablesComponent implements OnInit {
   public getSeparator(): string {
     const rows = (this.inputText ?? '')
       .split(/\r?\n/)
-      .filter((line) => line.trim().length > 0);
+      .filter(line => line.trim().length > 0);
 
     const separators = Object.values(this.Separators);
 
-    const separatorCounts = separators.map((sep) => {
+    const separatorCounts = separators.map(sep => {
       return rows.reduce((acc, line) => {
         return acc + line.split(sep).length;
       }, 0);
@@ -165,9 +168,10 @@ export class TablesComponent implements OnInit {
 
     const maxCount = Math.max(...separatorCounts);
 
-    const auto = separators.find(
-      (sep) => separatorCounts[separators.indexOf(sep)] === maxCount
-    )!;
+    const auto =
+      separators.find(
+        sep => separatorCounts[separators.indexOf(sep)] === maxCount
+      ) ?? 'auto';
 
     return auto;
   }

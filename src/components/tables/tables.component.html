@@ -88,7 +88,7 @@
         <span class="label-text"
           >Separator: <span class="italic">{{ activeSeparator }}</span>
           <span *ngIf="separator === Separators.AUTO_DETECT" class="text-2xs">
-            (auto-detected)</span
+            (auto)</span
           >
         </span>
       </label>
@@ -114,8 +114,8 @@
         <input
           type="radio"
           name="options"
-          data-title="4 sp"
-          class="btn btn-square btn-ghost"
+          data-title="4 Spaces"
+          class="btn btn-square btn-ghost text-2xs"
           [value]="Separators.FOUR_SPACES"
           [checked]="separator === Separators.FOUR_SPACES && !customSeparator"
           [(ngModel)]="separator"
@@ -159,7 +159,9 @@
       <div class="label-text">Tips:</div>
     </label>
 
-    <p class="text-sm">Add <code class="text">---</code> for horizontal divider</p>
+    <p class="text-sm">
+      Add <code class="text">---</code> for horizontal divider
+    </p>
   </form>
 </div>
 
@@ -205,11 +207,11 @@
 
   <button
     class="absolute gap-2 opacity-0 btn btn-primary bottom-6 right-6 w-28 opa"
-    [class.opacity-100]="outputText?.length! > 0"
+    [class.opacity-100]="outputText.length > 0"
     [class.btn-success]="copied"
     (click)="copyToClipboard()"
   >
     <i class="fas fa-copy"></i>
-    {{ copied ? "Copied!" : "Copy" }}
+    {{ copied ? 'Copied!' : 'Copy' }}
   </button>
 </div>

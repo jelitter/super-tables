@@ -17,8 +17,8 @@ export const config = {
     joinBody: `─`,
     joinLeft: `├`,
     joinRight: `┤`,
-    joinJoin: `┼`,
-  },
+    joinJoin: `┼`
+  }
 };
 
 export const initialInput = `Col1    Col2    Col3    Numeric Column

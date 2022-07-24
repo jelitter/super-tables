@@ -6,11 +6,11 @@ import { TablesComponent } from 'src/components/tables/tables.component';
 const routes: Routes = [
   { path: '', component: TablesComponent },
   { path: 'about', component: AboutComponent },
-  { path: 'tables', redirectTo: '', pathMatch: 'full' },
+  { path: 'tables', redirectTo: '', pathMatch: 'full' }
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
+  exports: [RouterModule]
 })
 export class AppRoutingModule {}
