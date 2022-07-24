@@ -1,11 +1,11 @@
-<div class="left w-auto">
+<div class="w-auto left">
   <!-- radio -->
   <form
     [noValidate]="true"
     (change)="onSettingsChange()"
     class="flex flex-col gap-1 pt-4"
   >
-    <label class="flex align-middle gap-4">
+    <label class="flex gap-4 align-middle">
       <input
         type="checkbox"
         name="headers"
@@ -15,7 +15,7 @@
       />
       Headers 1st row
     </label>
-    <label class="flex align-middle gap-4">
+    <label class="flex gap-4 align-middle">
       <input
         type="checkbox"
         name="horizontal-lines"
@@ -24,14 +24,23 @@
       />
       All horizontal lines
     </label>
+    <label class="flex gap-4 align-middle">
+      <input
+        type="checkbox"
+        name="horizontal-lines"
+        [(ngModel)]="showEmptyAsDash"
+        class="toggle toggle-primary"
+      />
+      Show empty as <code>&mdash;</code>
+    </label>
 
-    <div class="divider m-0"></div>
+    <div class="m-0 divider"></div>
 
     <label class="label">
       <span class="label-text">Border Style</span>
     </label>
 
-    <label class="flex align-middle gap-4">
+    <label class="flex gap-4 align-middle">
       <input
         type="radio"
         name="border"
@@ -41,7 +50,7 @@
       />
       Single
     </label>
-    <label class="flex align-middle gap-4">
+    <label class="flex gap-4 align-middle">
       <input
         type="radio"
         name="border"
@@ -51,7 +60,7 @@
       />
       Double
     </label>
-    <label class="flex align-middle gap-4">
+    <label class="flex gap-4 align-middle">
       <input
         type="radio"
         name="border"
@@ -61,7 +70,7 @@
       />
       ASCII
     </label>
-    <label class="flex align-middle gap-4">
+    <label class="flex gap-4 align-middle">
       <input
         type="radio"
         name="border"
@@ -72,9 +81,9 @@
       None
     </label>
 
-    <div class="divider m-0"></div>
+    <div class="m-0 divider"></div>
 
-    <div class="pr-4 flex flex-col box-border gap-2">
+    <div class="box-border flex flex-col gap-2 pr-4">
       <label class="label">
         <span class="label-text"
           >Separator: <span class="italic">{{ activeSeparator }}</span>
@@ -135,7 +144,7 @@
           <span>Custom</span>
           <input
             type="text"
-            class="input input-bordered input-sm w-40"
+            class="w-40 input input-bordered input-sm"
             name="separator"
             [(ngModel)]="customSeparator"
             (input)="onSettingsChange()"
@@ -143,28 +152,36 @@
         </label>
       </div>
     </div>
+
+    <div class="m-0 divider"></div>
+
+    <label class="label">
+      <div class="label-text">Tips:</div>
+    </label>
+
+    <p class="text-sm">Add <code class="text">---</code> for horizontal divider</p>
   </form>
 </div>
 
-<div class="divider divider-horizontal m-0 w-1"></div>
+<div class="w-1 m-0 divider divider-horizontal"></div>
 
 <div
   class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden"
 >
   <pre
-    class="right-top px-4 py-2 rounded outline-0 overflow-auto :active:border-2"
+    class="px-4 py-2 overflow-auto rounded right-top outline-0 :active:border-2"
     contenteditable="true"
     (input)="onUserPropertyChanged($event)"
   ></pre>
 
   <button
-    class="btn btn-circle btn-sm absolute dark:btn-outline top-20 right-6"
+    class="absolute btn btn-circle btn-sm dark:btn-outline top-20 right-6"
     *ngIf="(inputText ?? '').length > 0"
     (click)="clearInput()"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      class="h-6 w-6"
+      class="w-6 h-6"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -178,7 +195,7 @@
     </svg>
   </button>
 
-  <div class="divider m-0 h-1"></div>
+  <div class="h-1 m-0 divider"></div>
 
   <pre
     class="right-bottom px-4 py-2 rounded overflow-auto leading-[19px]"
@@ -187,7 +204,7 @@
   >
 
   <button
-    class="btn btn-primary gap-2 absolute bottom-6 right-6 w-28 opacity-0 opa"
+    class="absolute gap-2 opacity-0 btn btn-primary bottom-6 right-6 w-28 opa"
     [class.opacity-100]="outputText?.length! > 0"
     [class.btn-success]="copied"
     (click)="copyToClipboard()"

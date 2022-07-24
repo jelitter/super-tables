@@ -27,6 +27,7 @@ export class TablesComponent implements OnInit {
   customSeparator: string = null!;
   showHeaders = true;
   showAllHorizontalLines = false;
+  showEmptyAsDash = false;
 
   private empties = new Array(100).fill('');
 
@@ -99,6 +100,20 @@ export class TablesComponent implements OnInit {
         return;
       }
 
+      let rows = (this.inputText ?? '').split(/\r?\n/);
+      // .filter((line) => line.trim().length > 0);
+
+      const dividersBefore = rows
+        .map((r, i) => (r.trim() === '---' ? i : null))
+        .filter((n) => n !== null) as number[];
+
+      // Remove lines with dividers:
+      for (let i = dividersBefore.length - 1; i >= 0; i--) {
+        rows.splice(dividersBefore[i], 1);
+      }
+
+      const dividers = dividersBefore.map((d, i) => d - i);
+
       const config = {
         border: getBorderCharacters(this.border),
         drawHorizontalLine: (lineIndex: number, rowCount: number) => {
@@ -106,14 +121,11 @@ export class TablesComponent implements OnInit {
             this.showAllHorizontalLines ||
             lineIndex === 0 ||
             (this.showHeaders && lineIndex === 1) ||
-            lineIndex === rowCount
+            lineIndex === rowCount ||
+            dividers.includes(lineIndex)
           );
         },
       };
-
-      const rows = (this.inputText ?? '')
-        .split(/\r?\n/)
-        .filter((line) => line.trim().length > 0);
 
       const separator =
         this.customSeparator || this.separator === this.Separators.AUTO_DETECT
@@ -124,14 +136,13 @@ export class TablesComponent implements OnInit {
         ...rows.map((line: string) => line.split(separator).length)
       );
 
+      const empty = this.showEmptyAsDash ? '—' : '';
+
       const data = rows
         .map((line: any) =>
           [...line.split(separator), ...this.empties].slice(0, lineLength)
         )
-        .map((e) => e ?? '');
-
-      // rows.map((line: any) => line.split(this.separator || DEFAULT_SEPARATOR))
-      // .map((e) => e ?? '');
+        .map((r) => r.map((e) => e || empty));
 
       this.outputText = table(data, config).trim();
     } catch (error) {
