@@ -313,7 +313,6 @@ export class TablesComponent implements OnInit {
     if (this.context) {
       this.context.font = font;
       const width = Math.floor(this.context.measureText(text).width);
-      // console.log('Width for ' + text + ': ' + width);
       return width;
     }
     return 0;
