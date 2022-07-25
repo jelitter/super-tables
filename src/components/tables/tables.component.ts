@@ -40,7 +40,7 @@ export class TablesComponent implements OnInit {
   public outputText: string = '';
   public separator: string = this.Separators.AUTO_DETECT;
   public showAllHorizontalLines = false;
-  public showEmptyAsDash = false;
+  public showEmptyAsDash = true;
   public showHeaders = true;
 
   get activeSeparator() {
