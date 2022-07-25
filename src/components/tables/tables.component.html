@@ -170,7 +170,7 @@
   class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden relative"
 >
   <pre
-    class="px-4 py-2 overflow-auto rounded right-top outline-0 :active:border-2 after:content-['Paste data here']"
+    class="px-4 py-2 overflow-auto rounded right-top outline-0 :active:border-2 after:content-['Paste data here'] overflow-auto"
     contenteditable="true"
     (input)="onUserPropertyChanged($event)"
   ></pre>
@@ -203,8 +203,8 @@
 
   <div class="h-1 m-0 divider"></div>
 
-  <div class="relative">
-    <ul class="absolute flex h-2 m-0 pl-[20px] mt-[-20px]">
+  <div class="relative overflow-auto">
+    <ul class="fixed flex h-2 m-0 pl-[20px] mt-[-20px]">
       <li
         *ngFor="let width of columnWidths; let i = index"
         [ngStyle]="{ width: width.px + 'px', minWidth: '56px' }"
