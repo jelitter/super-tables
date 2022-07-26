@@ -1,5 +1,5 @@
-<div class="flex justify-between gap-8 px-4 py-3 header">
-  <div class="box-border flex gap-8">
+<div class="flex items-center justify-between gap-8 px-4 py-3 header">
+  <div class="box-border flex items-center gap-8">
     <h1 class="h-6">
       <i class="fas fa-table text-primary"></i>
       <span
@@ -40,7 +40,12 @@
     </div>
   </div>
 
-  <div class="flex gap-2">
+  <div class="flex items-end italic transition-opacity opacity-70">
+    <!-- [ngStyle]="{ 'opacity-0': inputText, 'opacity-70': !inputText }" -->
+    Paste CSV, Tab separated values, or JSON url
+  </div>
+
+  <div class="flex items-center gap-2">
     <div
       class="flex justify-center tooltip tooltip-bottom tooltip-secondary"
       data-tip="Buy me a coffee"

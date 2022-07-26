@@ -6,8 +6,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'tables';
-  isDarkMode = false;
+  public title = 'tables';
+  public isDarkMode = false;
 
   public ngOnInit(): void {
     const theme: 'dark' | 'light' =

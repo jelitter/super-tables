@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { toTitleCase } from '@util/string';
+import { clean, isValidUrl, toTitleCase } from '@util/string';
 import { fadeInOut } from 'src/animations';
+import { JsonFetchService } from 'src/services/json-fetch.service';
 import { Alignment, getBorderCharacters, table } from 'table';
-import { initialInput } from './tables.config';
+import { initialSettings } from './tables.config';
 
 type ColWidth = { px: number; chars: number };
 
@@ -36,12 +37,17 @@ export class TablesComponent implements OnInit {
   public columnWidths: ColWidth[] = [];
   public copied = false;
   public customSeparator: string = null!;
-  public inputText: string | null = initialInput;
-  public outputText: string = '';
+  public inputText: string | null = initialSettings.input;
+  public outputText: string = initialSettings.output;
   public separator: string = this.Separators.AUTO_DETECT;
   public showAllHorizontalLines = false;
   public showEmptyAsDash = true;
   public showHeaders = true;
+  public urlInput = initialSettings.url;
+
+  get isUrlInputValid(): boolean {
+    return isValidUrl((this.urlInput ?? '').trim());
+  }
 
   get activeSeparator() {
     const sep: string = this.customSeparator
@@ -63,18 +69,17 @@ export class TablesComponent implements OnInit {
     return toTitleCase(result);
   }
 
-  constructor() {}
+  constructor(private readonly jsonFetch: JsonFetchService) {}
 
   public ngOnInit(): void {
     const inputPre = (document.querySelector('pre.right-top') as HTMLElement)!;
 
-    inputPre.innerText = this.inputText ?? '';
-    this.drawTable();
+    inputPre.innerText = clean(this.inputText ?? '');
 
     //  Alt + Shift + F (autoformat)
     document.addEventListener('keydown', event => {
       if (event.altKey && event.shiftKey && event.key === 'F') {
-        const rows = (this.inputText ?? '')
+        const rows = clean(this.inputText ?? '')
           .split(/\r?\n/)
           .filter(line => line.trim().length > 0);
         const formattedInput = rows.map(line => line.trim()).join('\n');
@@ -89,7 +94,7 @@ export class TablesComponent implements OnInit {
 
     const newValue = event.target.innerText;
 
-    this.inputText = newValue;
+    this.inputText = clean(newValue);
 
     this.drawTable();
   }
@@ -110,7 +115,7 @@ export class TablesComponent implements OnInit {
   }
 
   private drawTable() {
-    this.debounceFunction(() => {
+    this.debounceFunction(async () => {
       try {
         if (this.inputText === '') {
           this.outputText = '';
@@ -171,7 +176,7 @@ export class TablesComponent implements OnInit {
                 acc[i] ?? 0,
                 this.getTextWidth(
                   cell.padEnd(5, 'x') + 'xxx',
-                  '16px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace'
+                  initialSettings.font
                 )
               )
             ),
@@ -317,4 +322,60 @@ export class TablesComponent implements OnInit {
     }
     return 0;
   }
+
+  public fetch = async () => {
+    console.log({ url: this.urlInput });
+
+    if (!this.isUrlInputValid) {
+      return;
+    }
+
+    const url = (this.urlInput ?? '').trim();
+    // this.outputText = `URL detected:\n${url}`;
+
+    const obj = await this.jsonFetch.get(url);
+    if (!obj) {
+      this.outputText = `Could not fetch ${url}`;
+    } else if (!Array.isArray(obj)) {
+      this.outputText = `Content is not an array.`;
+      console.log({ obj });
+    } else {
+      this.setInput(this.getInputTextFromArray(obj));
+    }
+
+    this.urlInput = '';
+    this.columnWidths = [];
+  };
+
+  private getInputTextFromArray = (arr: any[]): string => {
+    console.log({ arr });
+
+    const headers: string[] = [];
+    const values: string[][] = [];
+
+    arr.forEach(obj => {
+      Object.keys(obj).forEach(key => {
+        if (!headers.includes(key)) {
+          headers.push(key);
+        }
+      });
+    });
+
+    arr.forEach(obj => {
+      const valuesRow: string[] = [];
+      headers.forEach(key => {
+        valuesRow.push(obj[key] ?? '');
+      });
+      values.push(valuesRow);
+    });
+
+    let tsv = `${headers.map(key => `${key}`).join('\t')}\n`;
+
+    values.forEach(row => {
+      tsv += `${row.map(value => `${value}`).join('\t')}\n`;
+    });
+
+    console.log({ headers, values, tsv });
+    return clean(tsv);
+  };
 }
