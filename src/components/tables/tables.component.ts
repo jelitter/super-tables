@@ -37,13 +37,16 @@ export class TablesComponent implements OnInit {
   public columnWidths: ColWidth[] = [];
   public copied = false;
   public customSeparator: string = null!;
+  public distance: number = 0;
   public inputText: string | null = initialSettings.input;
   public outputText: string = initialSettings.output;
+  public previousOutputText: string = '';
   public separator: string = this.Separators.AUTO_DETECT;
   public showAllHorizontalLines = false;
   public showEmptyAsDash = true;
   public showHeaders = true;
   public urlInput = initialSettings.url;
+  public uuid: string = '';
 
   get isUrlInputValid(): boolean {
     return isValidUrl((this.urlInput ?? '').trim());
@@ -214,7 +217,19 @@ export class TablesComponent implements OnInit {
           }
         });
 
-        this.outputText = table(data, config).trim();
+        this.previousOutputText = this.outputText;
+        const newOutputText = table(data, config);
+
+        this.distance = Math.abs(
+          this.previousOutputText.length - newOutputText.length
+        );
+
+        if (this.distance > 100) {
+          this.uuid = crypto.getRandomValues(new Uint8Array(8)).toString();
+        }
+
+        this.outputText = newOutputText;
+        // this.distance = 0;
       } catch (error) {
         console.warn(error);
       }
@@ -325,14 +340,11 @@ export class TablesComponent implements OnInit {
   }
 
   public fetch = async () => {
-    console.log({ url: this.urlInput });
-
     if (!this.isUrlInputValid) {
       return;
     }
 
     const url = (this.urlInput ?? '').trim();
-    // this.outputText = `URL detected:\n${url}`;
 
     const obj = await this.jsonFetch.get(url);
     if (!obj) {
