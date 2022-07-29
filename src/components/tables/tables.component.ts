@@ -75,6 +75,7 @@ export class TablesComponent implements OnInit {
     const inputPre = (document.querySelector('pre.right-top') as HTMLElement)!;
 
     inputPre.innerText = clean(this.inputText ?? '');
+    this.drawTable();
 
     //  Alt + Shift + F (autoformat)
     document.addEventListener('keydown', event => {
@@ -346,6 +347,8 @@ export class TablesComponent implements OnInit {
     this.urlInput = '';
     this.columnWidths = [];
   };
+
+  public trackByIndex = (index: number, item: any) => index;
 
   private getInputTextFromArray = (arr: any[]): string => {
     console.log({ arr });

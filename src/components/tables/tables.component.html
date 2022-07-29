@@ -210,11 +210,11 @@
   <div class="relative overflow-auto">
     <ul class="fixed flex h-2 m-0 pl-[20px] mt-[-20px]">
       <li
-        *ngFor="let width of columnWidths; let i = index"
+        *ngFor="let width of columnWidths; let i = index; trackBy: trackByIndex"
         [ngStyle]="{ width: width.px + 'px', minWidth: '56px' }"
         class="inline-table"
       >
-        <div class="justify-center btn-group">
+        <div class="justify-center btn-group" [@fadeInOut]>
           <button
             class="btn w-6 h-4 text-[10px] btn-square btn-xs rounded-l-full"
             (click)="alignColumn(i, 'left')"
@@ -247,7 +247,7 @@
   </div>
 
   <button
-    class="absolute gap-2 opacity-0 btn btn-primary btn-sm bottom-4 right-4 w-28 opa"
+    class="absolute gap-2 opacity-0 btn btn-primary btn-sm bottom-4 right-4 w-28"
     [class.opacity-100]="outputText.length > 0"
     [class.btn-success]="copied"
     (click)="copyToClipboard()"
