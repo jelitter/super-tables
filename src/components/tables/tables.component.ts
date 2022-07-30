@@ -14,10 +14,11 @@ type ColWidth = { px: number; chars: number };
   animations: [fadeInOut(300)]
 })
 export class TablesComponent implements OnInit {
-  private timeout?: NodeJS.Timeout;
-  private empties: string[] = new Array(100).fill('');
   private canvas = document.createElement('canvas');
-  private context = this.canvas.getContext('2d');
+  private context: CanvasRenderingContext2D | null = null;
+  private empties: string[] = new Array(100).fill('');
+  private rowHeight: number = 0;
+  private timeout?: NodeJS.Timeout;
 
   public Separators = {
     AUTO_DETECT: 'auto',
@@ -27,14 +28,17 @@ export class TablesComponent implements OnInit {
     PIPE: '|'
   };
 
-  public alignments: Map<Alignment, Set<number>> = new Map([
-    ['left', new Set()],
-    ['center', new Set()],
-    ['right', new Set()]
-  ]);
+  public alignments: Map<Alignment, Set<number>>[] = [
+    new Map([
+      ['left', new Set()],
+      ['center', new Set()],
+      ['right', new Set()]
+    ])
+  ];
+  public allowMultipleTables = true;
   public border = 'norc';
   public borders = ['honeywell', 'norc', 'ramac', 'void'];
-  public columnWidths: ColWidth[] = [];
+  public columnWidths: ColWidth[][] = [];
   public copied = false;
   public customSeparator: string = null!;
   public distance: number = 0;
@@ -45,6 +49,7 @@ export class TablesComponent implements OnInit {
   public showAllHorizontalLines = false;
   public showEmptyAsDash = true;
   public showHeaders = true;
+  public subTables: string[][] = [];
   public urlInput = initialSettings.url;
   public uuid: string = '';
 
@@ -75,6 +80,10 @@ export class TablesComponent implements OnInit {
   constructor(private readonly jsonFetch: JsonFetchService) {}
 
   public ngOnInit(): void {
+    this.context = this.canvas.getContext('2d');
+    this.context!.font = initialSettings.font;
+    this.rowHeight = this.getRowHeight('table');
+
     const inputPre = (document.querySelector('pre.right-top') as HTMLElement)!;
 
     inputPre.innerText = clean(this.inputText ?? '');
@@ -83,9 +92,7 @@ export class TablesComponent implements OnInit {
     //  Alt + Shift + F (autoformat)
     document.addEventListener('keydown', event => {
       if (event.altKey && event.shiftKey && event.key === 'F') {
-        const rows = clean(this.inputText ?? '')
-          .split(/\r?\n/)
-          .filter(line => line.trim().length > 0);
+        const rows = clean(this.inputText ?? '').split(/\r?\n/);
         const formattedInput = rows.map(line => line.trim()).join('\n');
         this.setInput(formattedInput);
       }
@@ -124,101 +131,122 @@ export class TablesComponent implements OnInit {
         if (this.inputText === '') {
           this.outputText = '';
           this.columnWidths = [];
+          this.subTables = [];
           return;
         }
 
-        const rows = (this.inputText ?? '').split(/\r?\n/);
-
-        const dividersBefore = rows
-          .map((r, i) => (r.trim() === '---' ? i : null))
-          .filter(n => n !== null) as number[];
-
-        for (let i = dividersBefore.length - 1; i >= 0; i--) {
-          rows.splice(dividersBefore[i], 1);
-        }
-
-        const dividers = dividersBefore.map((d, i) => d - i);
-
-        const config = {
-          border: getBorderCharacters(this.border),
-          drawHorizontalLine: (lineIndex: number, rowCount: number) => {
-            return (
-              this.showAllHorizontalLines ||
-              lineIndex === 0 ||
-              (this.showHeaders && lineIndex === 1) ||
-              lineIndex === rowCount ||
-              dividers.includes(lineIndex)
-            );
-          },
-          columns: this.columnWidths.map(() => ({
-            alignment: 'left' as Alignment,
-            width: 1
-          }))
-        };
-
-        const separator =
-          this.customSeparator || this.separator === this.Separators.AUTO_DETECT
-            ? this.getSeparator()
-            : this.separator;
-
-        const lineLength = Math.max(
-          ...rows.map((line: string) => line.split(separator).length)
-        );
-
-        const empty = this.showEmptyAsDash ? '—' : '';
-
-        const data = rows
-          .map((line: string) =>
-            [...line.split(separator), ...this.empties].slice(0, lineLength)
-          )
-          .map(row => row.map(word => word.trim() || empty));
-
-        const pxWidths = data.reduce(
-          (acc, row) =>
-            row.map((cell, i) =>
-              Math.max(
-                acc[i] ?? 0,
-                this.getTextWidth(
-                  cell.padEnd(5, 'x') + 'xxx',
-                  initialSettings.font
-                )
-              )
-            ),
-          [] as number[]
-        );
-
-        const charWidths = data.reduce(
-          (acc, row) =>
-            row.map((cell, i) =>
-              Math.max(acc[i] ?? 0, Math.max(5, cell.trim().length))
-            ),
-          [] as number[]
-        );
-
-        this.columnWidths = pxWidths.map((px, i) => {
-          config.columns[i] = {
-            alignment: this.getColumnAlignment(i),
-            width: charWidths[i]
-          };
-
-          return {
-            px,
-            chars: charWidths[i]
-          };
-        });
-
-        this.columnWidths.forEach((_, i) => {
-          if (
-            !this.alignments.get('left')?.has(i) &&
-            !this.alignments.get('center')?.has(i) &&
-            !this.alignments.get('right')?.has(i)
-          ) {
-            this.alignments.get('left')?.add(i);
-          }
-        });
+        const texts: string[] = this.allowMultipleTables
+          ? (this.inputText ?? '')?.split(/\n{2,}/)
+          : [this.inputText ?? ''];
 
         this.previousOutputText = this.outputText;
-        const newOutputText = table(data, config);
+        const outputs: string[] = [];
+        this.subTables.length = texts.length;
+        this.columnWidths.length = texts.length;
+
+        texts.forEach((text, subTableIndex) => {
+          const rows = (text ?? '').split(/\r?\n/);
+
+          const dividersBefore = rows
+            .map((r, i) => (r.trim() === '---' ? i : null))
+            .filter(n => n !== null) as number[];
+
+          for (let i = dividersBefore.length - 1; i >= 0; i--) {
+            rows.splice(dividersBefore[i], 1);
+          }
+
+          const dividers = dividersBefore.map((d, i) => d - i);
+
+          const config = {
+            border: getBorderCharacters(this.border),
+            drawHorizontalLine: (lineIndex: number, rowCount: number) => {
+              return (
+                this.showAllHorizontalLines ||
+                lineIndex === 0 ||
+                (this.showHeaders && lineIndex === 1) ||
+                lineIndex === rowCount ||
+                dividers.includes(lineIndex)
+              );
+            },
+            columns: (this.columnWidths[subTableIndex] ??= []).map(() => ({
+              alignment: 'left' as Alignment,
+              width: 1
+            }))
+          };
+
+          const separator =
+            this.customSeparator ||
+            this.separator === this.Separators.AUTO_DETECT
+              ? this.getSeparator()
+              : this.separator;
+
+          const lineLength = Math.max(
+            ...rows.map((line: string) => line.split(separator).length)
+          );
+
+          const empty = this.showEmptyAsDash ? '—' : '';
+
+          const data = rows
+            .map((line: string) =>
+              [...line.split(separator), ...this.empties].slice(0, lineLength)
+            )
+            .map(row => row.map(word => word.trim() || empty));
+
+          const pxWidths = data.reduce(
+            (acc, row) =>
+              row.map((cell, i) =>
+                Math.max(
+                  acc[i] ?? 0,
+                  this.getTextWidth(cell.padEnd(5, 'x') + 'xxx')
+                )
+              ),
+            [] as number[]
+          );
+
+          const charWidths = data.reduce(
+            (acc, row) =>
+              row.map((cell, i) =>
+                Math.max(acc[i] ?? 0, Math.max(5, cell.trim().length))
+              ),
+            [] as number[]
+          );
+
+          this.columnWidths[subTableIndex] = pxWidths.map((px, i) => {
+            config.columns[i] = {
+              alignment: this.getColumnAlignment(subTableIndex, i),
+              width: charWidths[i]
+            };
+
+            return {
+              px,
+              chars: charWidths[i]
+            };
+          });
+
+          if (!this.alignments[subTableIndex]) {
+            this.alignments[subTableIndex] = new Map([
+              ['left', new Set()],
+              ['center', new Set()],
+              ['right', new Set()]
+            ]);
+          }
+
+          this.columnWidths.forEach((_, i) => {
+            if (
+              !this.alignments[subTableIndex].get('left')?.has(i) &&
+              !this.alignments[subTableIndex].get('center')?.has(i) &&
+              !this.alignments[subTableIndex].get('right')?.has(i)
+            ) {
+              this.alignments[subTableIndex].get('left')?.add(i);
+            }
+          });
+
+          const subTable = table(data, config);
+          this.subTables[subTableIndex] = subTable.split(/\r?\n/);
+          outputs.push(subTable);
+        });
+
+        const newOutputText = outputs.join('\n');
 
         this.distance = Math.abs(
           this.previousOutputText.length - newOutputText.length
@@ -229,9 +257,8 @@ export class TablesComponent implements OnInit {
         }
 
         this.outputText = newOutputText;
-        // this.distance = 0;
       } catch (error) {
-        console.warn(error);
+        // console.warn(error);
       }
     });
   }
@@ -270,22 +297,29 @@ export class TablesComponent implements OnInit {
     this.setInput('');
   }
 
-  public alignColumn(index: number, alignment: Alignment) {
-    this.alignments.get('left')?.delete(index);
-    this.alignments.get('center')?.delete(index);
-    this.alignments.get('right')?.delete(index);
-    this.alignments.get(alignment)?.add(index);
+  public alignColumn(
+    subTableIndex: number,
+    columnIndex: number,
+    alignment: Alignment
+  ) {
+    this.alignments[subTableIndex].get('left')?.delete(columnIndex);
+    this.alignments[subTableIndex].get('center')?.delete(columnIndex);
+    this.alignments[subTableIndex].get('right')?.delete(columnIndex);
+    this.alignments[subTableIndex].get(alignment)?.add(columnIndex);
     this.drawTable();
   }
 
-  public getColumnAlignment(index: number): Alignment {
-    if (this.alignments.get('left')?.has(index)) {
+  public getColumnAlignment(
+    subTableIndex: number,
+    columnIndex: number
+  ): Alignment {
+    if (this.alignments?.[subTableIndex]?.get('left')?.has(columnIndex)) {
       return 'left' as Alignment;
     }
-    if (this.alignments.get('center')?.has(index)) {
+    if (this.alignments?.[subTableIndex]?.get('center')?.has(columnIndex)) {
       return 'center' as Alignment;
     }
-    if (this.alignments.get('right')?.has(index)) {
+    if (this.alignments?.[subTableIndex]?.get('right')?.has(columnIndex)) {
       return 'right' as Alignment;
     }
     return 'left' as Alignment;
@@ -330,13 +364,33 @@ export class TablesComponent implements OnInit {
     }
   }
 
-  public getTextWidth(text: string, font: string) {
+  public getTextWidth(text: string) {
     if (this.context) {
-      this.context.font = font;
       const width = Math.floor(this.context.measureText(text).width);
       return width;
     }
     return 0;
+  }
+
+  private getRowHeight(text: string) {
+    if (this.context) {
+      const height = Math.floor(
+        this.context.measureText(text).fontBoundingBoxAscent
+      );
+      return height;
+    }
+    return 0;
+  }
+
+  public getSubTableMarginTop(subTableIndex: number): number {
+    if (subTableIndex === 0) {
+      return 0;
+    }
+
+    return (
+      this.subTables[subTableIndex - 1].length * this.rowHeight +
+      this.getSubTableMarginTop(subTableIndex - 1)
+    );
   }
 
   public fetch = async () => {
@@ -351,7 +405,6 @@ export class TablesComponent implements OnInit {
       this.outputText = `Could not fetch ${url}`;
     } else if (!Array.isArray(obj)) {
       this.outputText = `Content is not an array.`;
-      console.log({ obj });
     } else {
       this.setInput(this.getInputTextFromArray(obj));
     }
@@ -360,11 +413,9 @@ export class TablesComponent implements OnInit {
     this.columnWidths = [];
   };
 
-  public trackByIndex = (index: number, item: any) => index;
+  public trackByIndex = (index: number) => index;
 
   private getInputTextFromArray = (arr: any[]): string => {
-    console.log({ arr });
-
     const headers: string[] = [];
     const values: string[][] = [];
 
@@ -390,7 +441,6 @@ export class TablesComponent implements OnInit {
       tsv += `${row.map(value => `${value}`).join('\t')}\n`;
     });
 
-    console.log({ headers, values, tsv });
     return clean(tsv);
   };
 }

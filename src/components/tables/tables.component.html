@@ -1,4 +1,4 @@
-<div class="w-auto left">
+<div class="w-auto left" [@fadeInOut]>
   <form
     [noValidate]="true"
     (change)="onSettingsChange()"
@@ -22,6 +22,15 @@
         class="toggle toggle-primary"
       />
       All horizontal lines
+    </label>
+    <label class="flex gap-4 align-middle cursor-pointer">
+      <input
+        type="checkbox"
+        name="allow-multiple"
+        [(ngModel)]="allowMultipleTables"
+        class="toggle toggle-primary"
+      />
+      Allow multiple tables
     </label>
     <label class="flex gap-4 align-middle cursor-pointer">
       <input
@@ -168,6 +177,7 @@
 
 <div
   class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden relative"
+  [@fadeInOut]
 >
   <label for="url-modal" class="fixed mt-3 btn-sm btn modal-button right-14">
     URL
@@ -208,39 +218,51 @@
   <div class="h-1 m-0 divider"></div>
 
   <div class="relative overflow-auto">
-    <ul class="fixed flex h-2 m-0 pl-[20px] mt-[-20px]">
-      <li
-        *ngFor="let width of columnWidths; let i = index; trackBy: trackByIndex"
-        [ngStyle]="{ width: width.px + 'px', minWidth: '56px' }"
-        class="inline-table"
+    <div class="absolute w-full bg-scroll">
+      <ul
+        class="absolute flex m-0 h-auto pl-[20px]"
+        [ngStyle]="{
+          'margin-top': 'calc(' + getSubTableMarginTop(i) + 'px - 3px)'
+        }"
+        *ngFor="
+          let widths of columnWidths;
+          let i = index;
+          trackBy: trackByIndex
+        "
       >
-        <div class="justify-center btn-group" [@fadeInOut]>
-          <button
-            class="btn w-6 h-4 text-[10px] btn-square btn-xs rounded-l-full"
-            (click)="alignColumn(i, 'left')"
-            [class.btn-secondary]="getColumnAlignment(i) === 'left'"
-          >
-            <i class="fa-solid fa-align-left"></i>
-          </button>
-          <button
-            class="btn w-4 h-4 text-[10px] btn-square btn-xs rounded-none"
-            (click)="alignColumn(i, 'center')"
-            [class.btn-secondary]="getColumnAlignment(i) === 'center'"
-          >
-            <i class="fa-solid fa-align-center"></i>
-          </button>
-          <button
-            class="btn w-6 h-4 text-[10px] btn-square btn-xs rounded-r-full"
-            (click)="alignColumn(i, 'right')"
-            [class.btn-secondary]="getColumnAlignment(i) === 'right'"
-          >
-            <i class="fa-solid fa-align-right"></i>
-          </button>
-        </div>
-      </li>
-    </ul>
+        <li
+          *ngFor="let width of widths; let j = index; trackBy: trackByIndex"
+          [ngStyle]="{ width: width.px + 'px', minWidth: '56px' }"
+          class="inline-table"
+        >
+          <div class="justify-center btn-group" [@fadeInOut]>
+            <button
+              class="btn w-6 h-4 text-[10px] btn-square btn-xs rounded-l-full"
+              (click)="alignColumn(i, j, 'left')"
+              [class.btn-secondary]="getColumnAlignment(i, j) === 'left'"
+            >
+              <i class="fa-solid fa-align-left"></i>
+            </button>
+            <button
+              class="btn w-4 h-4 text-[10px] btn-square btn-xs rounded-none"
+              (click)="alignColumn(i, j, 'center')"
+              [class.btn-secondary]="getColumnAlignment(i, j) === 'center'"
+            >
+              <i class="fa-solid fa-align-center"></i>
+            </button>
+            <button
+              class="btn w-6 h-4 text-[10px] btn-square btn-xs rounded-r-full"
+              (click)="alignColumn(i, j, 'right')"
+              [class.btn-secondary]="getColumnAlignment(i, j) === 'right'"
+            >
+              <i class="fa-solid fa-align-right"></i>
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
     <pre
-      class="h-full px-4 py-2 overflow-auto rounded right-bottom leading-[initial]"
+      class="h-auto px-4 py-2 overflow-auto rounded right-bottom leading-[15px]"
       placeholder="Paste data here"
       [@fadeInOut]="uuid"
       >{{ outputText }}</pre

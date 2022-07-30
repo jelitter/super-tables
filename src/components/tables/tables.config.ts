@@ -1,33 +1,34 @@
-const initialInput = `Col1    Col2    Col3    Numeric Column
-Val1    Val2    Val3    123.45
+const initialInput = `Name    Location    Powers
+Luke Skywalker    Tatooine    The Force
+Han Solo    Dagobah
+R2-D2    Naboo
+Leia Organa    Alderaan
 
-Val4    Val5    Val6    678.95
-Val7        Val8
-    Val9        9000.1
+Planet     Terrain     Climate
+Tatooine     Desert     Arid
+Naboo    Grassy hills, swamps, etc    Temperate
+Alderaan    Grasslands, mountains    Temperate
 ---
-Sub header
----
-Item 1
-Item 2
+Death Star    Artificial    Climatized`;
 
-Item 3`;
+const initialOutput = `┌────────────────┬──────────┬───────────┐
+│ Name           │ Location │ Powers    │
+├────────────────┼──────────┼───────────┤
+│ Luke Skywalker │ Tatooine │ The Force │
+│ Han Solo       │ Dagobah  │ —         │
+│ R2-D2          │ Naboo    │ —         │
+│ Leia Organa    │ Alderaan │ —         │
+└────────────────┴──────────┴───────────┘
 
-const initialOutput = `┌────────────┬───────┬───────┬────────────────┐
-│ Col1       │ Col2  │ Col3  │ Numeric Column │
-├────────────┼───────┼───────┼────────────────┤
-│ Val1       │ Val2  │ Val3  │ 123.45         │
-│ —          │ —     │ —     │ —              │
-│ Val4       │ Val5  │ Val6  │ 678.95         │
-│ Val7       │ —     │ Val8  │ —              │
-│ —          │ Val9  │ —     │ 9000.1         │
-├────────────┼───────┼───────┼────────────────┤
-│ Sub header │ —     │ —     │ —              │
-├────────────┼───────┼───────┼────────────────┤
-│ Item 1     │ —     │ —     │ —              │
-│ Item 2     │ —     │ —     │ —              │
-│ —          │ —     │ —     │ —              │
-│ Item 3     │ —     │ —     │ —              │
-└────────────┴───────┴───────┴────────────────┘`;
+┌────────────┬───────────────────────────┬────────────┐
+│ Planet     │ Terrain                   │ Climate    │
+├────────────┼───────────────────────────┼────────────┤
+│ Tatooine   │ Desert                    │ Arid       │
+│ Naboo      │ Grassy hills, swamps, etc │ Temperate  │
+│ Alderaan   │ Grasslands, mountains     │ Temperate  │
+├────────────┼───────────────────────────┼────────────┤
+│ Death Star │ Artificial                │ Climatized │
+└────────────┴───────────────────────────┴────────────┘`;
 
 const initialUrl = 'https://jsonplaceholder.typicode.com/albums';
 
