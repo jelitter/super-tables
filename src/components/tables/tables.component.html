@@ -20,12 +20,26 @@
       All horizontal lines
     </label>
     <label class="flex gap-4 align-middle cursor-pointer">
-      <input type="checkbox" name="allow-multiple" [(ngModel)]="allowMultipleTables" class="toggle toggle-primary" />
+      <input
+        type="checkbox"
+        name="allow-multiple-tables"
+        [(ngModel)]="allowMultipleTables"
+        class="toggle toggle-primary"
+      />
       Allow multiple tables
     </label>
     <label class="flex gap-4 align-middle cursor-pointer">
       <input type="checkbox" name="show-dash" [(ngModel)]="showEmptyAsDash" class="toggle toggle-primary" />
       Show empty as <code>&mdash;</code>
+    </label>
+    <label class="flex gap-4 align-middle cursor-pointer">
+      <input
+        type="checkbox"
+        name="show-alignment-headers"
+        [(ngModel)]="showAlignmentHeaders"
+        class="toggle toggle-primary"
+      />
+      Show alignment headers
     </label>
 
     <div class="m-0 divider"></div>
@@ -154,7 +168,7 @@
   <div class="h-1 m-0 divider"></div>
 
   <div class="relative overflow-auto">
-    <div class="absolute w-full bg-scroll">
+    <div class="absolute w-full bg-scroll" *ngIf="showAlignmentHeaders">
       <ul
         class="absolute flex m-0 h-auto pl-[20px]"
         [ngStyle]="{
@@ -167,7 +181,7 @@
           [ngStyle]="{ width: width.px + 'px', minWidth: '56px' }"
           class="inline-table"
         >
-          <div class="justify-center btn-group" [@fadeInOut]>
+          <div class="justify-center btn-group flex-nowrap" [@fadeInOut]="showAlignmentHeaders">
             <button
               class="btn w-6 h-4 text-[10px] btn-square btn-xs rounded-l-full"
               (click)="alignColumn(i, j, 'left')"

@@ -50,6 +50,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
   public separator: string = this.Separators.AUTO_DETECT;
   public showAllHorizontalLines = false;
   public showEmptyAsDash = true;
+  public showAlignmentHeaders = true;
   public showHeaders = true;
   public subTables: string[][] = [];
   public urlInput = initialSettings.url;
@@ -152,6 +153,9 @@ export class TablesComponent implements OnInit, AfterViewInit {
         this.columnWidths.length = texts.length;
 
         texts.forEach((text, subTableIndex) => {
+          if (isJsonArray(text)) {
+          }
+
           const rows = (text ?? '').split(/\r?\n/);
 
           const dividersBefore = rows
@@ -194,7 +198,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
             .map((line: string) => [...line.split(separator), ...this.empties].slice(0, lineLength))
             .map(row => row.map(word => word.trim() || empty));
 
-          const minCharWidth = 6;
+          const minCharWidth = this.showAlignmentHeaders ? 6 : 3;
 
           const pxWidths = data.reduce(
             (acc, row) =>
@@ -387,7 +391,6 @@ export class TablesComponent implements OnInit, AfterViewInit {
 
   private getInputText(): string {
     if (isJsonArray(this.inputText)) {
-      console.log('It is an array');
       const arr = JSON.parse(this.inputText ?? '');
       return this.getInputTextFromArray(arr);
     }
