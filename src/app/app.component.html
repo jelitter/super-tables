@@ -2,27 +2,14 @@
   <div class="box-border flex items-center gap-8">
     <h1 class="h-6">
       <i class="fas fa-table text-primary"></i>
-      <span
-        class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary"
-      >
+      <span class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
         Super Tables
       </span>
     </h1>
-    <div
-      class="flex items-center tooltip tooltip-right"
-      data-tip="Switch theme"
-    >
+    <div class="flex items-center tooltip tooltip-right" data-tip="Switch theme">
       <label class="w-6 h-6 swap swap-rotate text-primary">
-        <input
-          type="checkbox"
-          [(ngModel)]="isDarkMode"
-          (click)="switchTheme($event)"
-        />
-        <svg
-          class="w-6 fill-current swap-on h-6w-6 text-accent"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-        >
+        <input type="checkbox" [(ngModel)]="isDarkMode" (click)="switchTheme($event)" />
+        <svg class="w-6 fill-current swap-on h-6w-6 text-accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path
             d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"
           />
@@ -40,16 +27,13 @@
     </div>
   </div>
 
-  <div class="flex items-end italic transition-opacity opacity-70">
+  <div class="flex items-end text-sm italic transition-opacity opacity-70">
     <!-- [ngStyle]="{ 'opacity-0': inputText, 'opacity-70': !inputText }" -->
-    Paste CSV, Tab separated values, or JSON url
+    Paste CSV (commas), TSV (tabs or 4 spaces) or JSON array of objects
   </div>
 
   <div class="flex items-center gap-2">
-    <div
-      class="flex justify-center tooltip tooltip-bottom tooltip-secondary"
-      data-tip="Buy me a coffee"
-    >
+    <div class="flex justify-center tooltip tooltip-bottom tooltip-secondary" data-tip="Buy me a coffee">
       <a
         class="flex items-center justify-center w-8 h-8 gap-2 text-secondary hover:text-secondary-focus hover:bg-gray-700/20 hover:rounded-full"
         href="https://www.buymeacoffee.com/super.tables"
@@ -60,10 +44,7 @@
       </a>
     </div>
 
-    <div
-      class="flex justify-center tooltip tooltip-bottom tooltip-primary"
-      data-tip="Donate"
-    >
+    <div class="flex justify-center tooltip tooltip-bottom tooltip-primary" data-tip="Donate">
       <a
         class="flex items-center justify-center w-8 h-8 gap-2 text-primary hover:text-primary-focus hover:bg-gray-700/20 hover:rounded-full"
         href="https://paypal.me/texttables?country.x=IE&locale.x=en_US"
@@ -74,10 +55,7 @@
       </a>
     </div>
 
-    <div
-      class="flex justify-center tooltip tooltip-bottom tooltip-accent"
-      data-tip="Github"
-    >
+    <div class="flex justify-center tooltip tooltip-bottom tooltip-accent" data-tip="Github">
       <a
         class="flex items-center justify-center w-8 h-8 gap-2 text-accent hover:text-accent-focus hover:bg-gray-700/20 hover:rounded-full"
         href="https://github.com/jelitter/super-tables"

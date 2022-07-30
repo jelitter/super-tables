@@ -12,8 +12,7 @@ export class AppComponent implements OnInit {
   public isDarkMode = false;
 
   public ngOnInit(): void {
-    const theme: 'dark' | 'light' =
-      (localStorage.getItem('theme') as 'dark' | 'light') || 'light';
+    const theme: 'dark' | 'light' = (localStorage.getItem('theme') as 'dark' | 'light') || 'light';
     this.setTheme(theme);
   }
 

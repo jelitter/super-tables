@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { clean, isValidUrl, toTitleCase } from '@util/string';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { clean, isJsonArray, isValidJson, isValidUrl, toTitleCase } from '@util/string';
 import { fadeInOut } from 'src/animations';
 import { JsonFetchService } from 'src/services/json-fetch.service';
 import { Alignment, getBorderCharacters, table } from 'table';
@@ -13,7 +13,9 @@ type ColWidth = { px: number; chars: number };
   styleUrls: ['./tables.component.scss'],
   animations: [fadeInOut(300)]
 })
-export class TablesComponent implements OnInit {
+export class TablesComponent implements OnInit, AfterViewInit {
+  @ViewChild('input', { read: ElementRef }) inputPre!: ElementRef<HTMLElement>;
+
   private canvas = document.createElement('canvas');
   private context: CanvasRenderingContext2D | null = null;
   private empties: string[] = new Array(100).fill('');
@@ -68,9 +70,7 @@ export class TablesComponent implements OnInit {
       return 'None';
     }
 
-    const entry = Object.entries(this.Separators).find(
-      entry => entry[1] === sep
-    );
+    const entry = Object.entries(this.Separators).find(entry => entry[1] === sep);
 
     const result = entry?.[0] ?? '';
 
@@ -82,24 +82,31 @@ export class TablesComponent implements OnInit {
   public ngOnInit(): void {
     this.context = this.canvas.getContext('2d');
     this.context!.font = initialSettings.font;
-    this.rowHeight = this.getRowHeight('table');
-
-    const inputPre = (document.querySelector('pre.right-top') as HTMLElement)!;
-
-    inputPre.innerText = clean(this.inputText ?? '');
-    this.drawTable();
+    // this.rowHeight = this.getRowHeight('table');
+    this.rowHeight = 17;
 
     //  Alt + Shift + F (autoformat)
     document.addEventListener('keydown', event => {
       if (event.altKey && event.shiftKey && event.key === 'F') {
-        const rows = clean(this.inputText ?? '').split(/\r?\n/);
-        const formattedInput = rows.map(line => line.trim()).join('\n');
+        let formattedInput = '';
+        if (isValidJson(this.inputText)) {
+          formattedInput = JSON.stringify(JSON.parse(this.inputText ?? ''), null, 2);
+        } else {
+          const rows = clean(this.inputText ?? '').split(/\r?\n/);
+          formattedInput = rows.map(line => line.trim()).join('\n');
+        }
+
         this.setInput(formattedInput);
       }
     });
   }
 
-  public async onUserPropertyChanged(event: any = null) {
+  public ngAfterViewInit(): void {
+    this.inputPre.nativeElement.innerText = clean(this.inputText ?? '');
+    this.drawTable();
+  }
+
+  public async onInputChanged(event: any = null) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -126,18 +133,18 @@ export class TablesComponent implements OnInit {
   }
 
   private drawTable() {
+    const inputText = this.getInputText();
+
     this.debounceFunction(async () => {
       try {
-        if (this.inputText === '') {
+        if (inputText === '') {
           this.outputText = '';
           this.columnWidths = [];
           this.subTables = [];
           return;
         }
 
-        const texts: string[] = this.allowMultipleTables
-          ? (this.inputText ?? '')?.split(/\n{2,}/)
-          : [this.inputText ?? ''];
+        const texts: string[] = this.allowMultipleTables ? (inputText ?? '')?.split(/\n{2,}/) : [inputText ?? ''];
 
         this.previousOutputText = this.outputText;
         const outputs: string[] = [];
@@ -175,39 +182,28 @@ export class TablesComponent implements OnInit {
           };
 
           const separator =
-            this.customSeparator ||
-            this.separator === this.Separators.AUTO_DETECT
+            this.customSeparator || this.separator === this.Separators.AUTO_DETECT
               ? this.getSeparator()
               : this.separator;
 
-          const lineLength = Math.max(
-            ...rows.map((line: string) => line.split(separator).length)
-          );
+          const lineLength = Math.max(...rows.map((line: string) => line.split(separator).length));
 
           const empty = this.showEmptyAsDash ? '—' : '';
 
           const data = rows
-            .map((line: string) =>
-              [...line.split(separator), ...this.empties].slice(0, lineLength)
-            )
+            .map((line: string) => [...line.split(separator), ...this.empties].slice(0, lineLength))
             .map(row => row.map(word => word.trim() || empty));
+
+          const minCharWidth = 6;
 
           const pxWidths = data.reduce(
             (acc, row) =>
-              row.map((cell, i) =>
-                Math.max(
-                  acc[i] ?? 0,
-                  this.getTextWidth(cell.padEnd(5, 'x') + 'xxx')
-                )
-              ),
+              row.map((cell, i) => Math.max(acc[i] ?? 0, this.getTextWidth(cell.padEnd(minCharWidth, 'x') + 'xxx'))),
             [] as number[]
           );
 
           const charWidths = data.reduce(
-            (acc, row) =>
-              row.map((cell, i) =>
-                Math.max(acc[i] ?? 0, Math.max(5, cell.trim().length))
-              ),
+            (acc, row) => row.map((cell, i) => Math.max(acc[i] ?? 0, Math.max(minCharWidth, cell.trim().length))),
             [] as number[]
           );
 
@@ -248,9 +244,7 @@ export class TablesComponent implements OnInit {
 
         const newOutputText = outputs.join('\n');
 
-        this.distance = Math.abs(
-          this.previousOutputText.length - newOutputText.length
-        );
+        this.distance = Math.abs(this.previousOutputText.length - newOutputText.length);
 
         if (this.distance > 100) {
           this.uuid = crypto.getRandomValues(new Uint8Array(8)).toString();
@@ -264,9 +258,7 @@ export class TablesComponent implements OnInit {
   }
 
   public getSeparator(): string {
-    const rows = (this.inputText ?? '')
-      .split(/\r?\n/)
-      .filter(line => line.trim().length > 0);
+    const rows = (this.getInputText() ?? '').split(/\r?\n/).filter(line => line.trim().length > 0);
 
     const separators = Object.values(this.Separators);
 
@@ -278,18 +270,14 @@ export class TablesComponent implements OnInit {
 
     const maxCount = Math.max(...separatorCounts);
 
-    const auto =
-      separators.find(
-        sep => separatorCounts[separators.indexOf(sep)] === maxCount
-      ) ?? 'auto';
+    const auto = separators.find(sep => separatorCounts[separators.indexOf(sep)] === maxCount) ?? 'auto';
 
     return auto;
   }
 
   public setInput(text: string) {
     this.inputText = text;
-    const inputPre = (document.querySelector('pre.right-top') as HTMLElement)!;
-    inputPre.innerText = this.inputText ?? '';
+    this.inputPre.nativeElement.innerText = this.inputText ?? '';
     this.drawTable();
   }
 
@@ -297,11 +285,7 @@ export class TablesComponent implements OnInit {
     this.setInput('');
   }
 
-  public alignColumn(
-    subTableIndex: number,
-    columnIndex: number,
-    alignment: Alignment
-  ) {
+  public alignColumn(subTableIndex: number, columnIndex: number, alignment: Alignment) {
     this.alignments[subTableIndex].get('left')?.delete(columnIndex);
     this.alignments[subTableIndex].get('center')?.delete(columnIndex);
     this.alignments[subTableIndex].get('right')?.delete(columnIndex);
@@ -309,10 +293,7 @@ export class TablesComponent implements OnInit {
     this.drawTable();
   }
 
-  public getColumnAlignment(
-    subTableIndex: number,
-    columnIndex: number
-  ): Alignment {
+  public getColumnAlignment(subTableIndex: number, columnIndex: number): Alignment {
     if (this.alignments?.[subTableIndex]?.get('left')?.has(columnIndex)) {
       return 'left' as Alignment;
     }
@@ -343,11 +324,7 @@ export class TablesComponent implements OnInit {
     }, 1500);
   }
 
-  private debounceFunction(
-    func: CallableFunction,
-    wait = 100,
-    immediate = false
-  ) {
+  private debounceFunction(func: CallableFunction, wait = 100, immediate = false) {
     const later = () => {
       this.timeout = undefined;
       if (!immediate) {
@@ -374,9 +351,7 @@ export class TablesComponent implements OnInit {
 
   private getRowHeight(text: string) {
     if (this.context) {
-      const height = Math.floor(
-        this.context.measureText(text).fontBoundingBoxAscent
-      );
+      const height = Math.floor(this.context.measureText(text).fontBoundingBoxAscent);
       return height;
     }
     return 0;
@@ -384,13 +359,10 @@ export class TablesComponent implements OnInit {
 
   public getSubTableMarginTop(subTableIndex: number): number {
     if (subTableIndex === 0) {
-      return 0;
+      return -2;
     }
 
-    return (
-      this.subTables[subTableIndex - 1].length * this.rowHeight +
-      this.getSubTableMarginTop(subTableIndex - 1)
-    );
+    return this.subTables[subTableIndex - 1].length * this.rowHeight + this.getSubTableMarginTop(subTableIndex - 1);
   }
 
   public fetch = async () => {
@@ -406,12 +378,22 @@ export class TablesComponent implements OnInit {
     } else if (!Array.isArray(obj)) {
       this.outputText = `Content is not an array.`;
     } else {
-      this.setInput(this.getInputTextFromArray(obj));
+      this.setInput(JSON.stringify(obj, null, 2));
     }
 
     this.urlInput = '';
     this.columnWidths = [];
   };
+
+  private getInputText(): string {
+    if (isJsonArray(this.inputText)) {
+      console.log('It is an array');
+      const arr = JSON.parse(this.inputText ?? '');
+      return this.getInputTextFromArray(arr);
+    }
+
+    return this.inputText ?? '';
+  }
 
   public trackByIndex = (index: number) => index;
 

@@ -6,24 +6,24 @@ export const toTitleCase = (words: string) =>
     .join(' ');
 
 export const isValidUrl = (url: string) =>
-  /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/.test(
-    url
-  );
+  /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/.test(url);
 
-export const isValidJson = (json: string) =>
-  /^[\],:{}\s]*$/.test(json) &&
-  /^[\[\],:{}\s]*$/.test(
-    json
-      .replace(/\\["\\\/bfnrtu]/g, '@')
-      .replace(
-        /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
-        ']'
-      )
-  );
+export const isValidJson = (json: string | null = '') => {
+  try {
+    JSON.parse(json ?? '');
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
 
 // 1. Trim string
 // 2. Remove empty carriage returns
 // 3. Remove trailing new lines
 export const clean = (text: string) => {
   return text.trim().replace(/\r\n/g, '\n').replace(/\n+$/, '');
+};
+
+export const isJsonArray = (json: string | null = ''): boolean => {
+  return isValidJson(json) && (json ?? '').startsWith('[');
 };

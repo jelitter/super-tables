@@ -1,9 +1,5 @@
-<div class="w-auto left" [@fadeInOut]>
-  <form
-    [noValidate]="true"
-    (change)="onSettingsChange()"
-    class="flex flex-col gap-1 pt-4 pl-4"
-  >
+<div class="w-auto text-sm left" [@fadeInOut]>
+  <form [noValidate]="true" (change)="onSettingsChange()" class="flex flex-col gap-1 pt-4 pl-4">
     <label class="flex gap-4 align-middle cursor-pointer">
       <input
         type="checkbox"
@@ -24,21 +20,11 @@
       All horizontal lines
     </label>
     <label class="flex gap-4 align-middle cursor-pointer">
-      <input
-        type="checkbox"
-        name="allow-multiple"
-        [(ngModel)]="allowMultipleTables"
-        class="toggle toggle-primary"
-      />
+      <input type="checkbox" name="allow-multiple" [(ngModel)]="allowMultipleTables" class="toggle toggle-primary" />
       Allow multiple tables
     </label>
     <label class="flex gap-4 align-middle cursor-pointer">
-      <input
-        type="checkbox"
-        name="show-dash"
-        [(ngModel)]="showEmptyAsDash"
-        class="toggle toggle-primary"
-      />
+      <input type="checkbox" name="show-dash" [(ngModel)]="showEmptyAsDash" class="toggle toggle-primary" />
       Show empty as <code>&mdash;</code>
     </label>
 
@@ -49,43 +35,19 @@
     </label>
 
     <label class="flex gap-4 align-middle cursor-pointer">
-      <input
-        type="radio"
-        name="border"
-        value="norc"
-        [(ngModel)]="border"
-        class="radio radio-primary"
-      />
+      <input type="radio" name="border" value="norc" [(ngModel)]="border" class="radio radio-primary" />
       Single
     </label>
     <label class="flex gap-4 align-middle cursor-pointer">
-      <input
-        type="radio"
-        name="border"
-        value="honeywell"
-        [(ngModel)]="border"
-        class="radio radio-primary"
-      />
+      <input type="radio" name="border" value="honeywell" [(ngModel)]="border" class="radio radio-primary" />
       Double
     </label>
     <label class="flex gap-4 align-middle cursor-pointer">
-      <input
-        type="radio"
-        name="border"
-        value="ramac"
-        [(ngModel)]="border"
-        class="radio radio-primary"
-      />
+      <input type="radio" name="border" value="ramac" [(ngModel)]="border" class="radio radio-primary" />
       ASCII
     </label>
     <label class="flex gap-4 align-middle cursor-pointer">
-      <input
-        type="radio"
-        name="border"
-        value="void"
-        [(ngModel)]="border"
-        class="radio radio-primary"
-      />
+      <input type="radio" name="border" value="void" [(ngModel)]="border" class="radio radio-primary" />
       None
     </label>
 
@@ -95,9 +57,7 @@
       <label class="cursor-pointer label">
         <span class="label-text"
           >Separator: <span class="italic">{{ activeSeparator }}</span>
-          <span *ngIf="separator === Separators.AUTO_DETECT" class="text-2xs">
-            (auto)</span
-          >
+          <span *ngIf="separator === Separators.AUTO_DETECT" class="text-2xs"> (auto)</span>
         </span>
       </label>
       <div class="btn-group">
@@ -167,50 +127,26 @@
       <div class="label-text">Tips:</div>
     </label>
 
-    <p class="text-sm">
-      Add <code class="text">---</code> for horizontal divider
-    </p>
+    <p class="text-sm">Add <code class="text">---</code> for horizontal divider</p>
   </form>
 </div>
 
 <div class="w-1 m-0 divider divider-horizontal"></div>
 
-<div
-  class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden relative"
-  [@fadeInOut]
->
-  <label for="url-modal" class="fixed mt-3 btn-sm btn modal-button right-14">
-    URL
-  </label>
+<div class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden relative" [@fadeInOut]>
+  <label for="url-modal" class="fixed mt-3 btn-sm btn modal-button right-14"> URL </label>
 
   <pre
-    class="px-4 py-2 overflow-auto rounded right-top outline-0 :active:border-2 after:content-['Paste data here'] overflow-auto"
+    #input
+    class="px-4 py-2 overflow-auto text-sm rounded right-top outline-0 :active:border-2"
     contenteditable="true"
-    (input)="onUserPropertyChanged($event)"
+    (input)="onInputChanged($event)"
   ></pre>
 
-  <div
-    class="absolute flex justify-center top-4 right-4 tooltip tooltip-left tooltip-info"
-    data-tip="Clear input"
-  >
-    <button
-      class="btn btn-circle btn-xs"
-      *ngIf="(inputText ?? '').length > 0"
-      (click)="clearInput()"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="w-6 h-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M6 18L18 6M6 6l12 12"
-        />
+  <div class="absolute flex justify-center top-4 right-4 tooltip tooltip-left tooltip-info" data-tip="Clear input">
+    <button class="btn btn-circle btn-xs" *ngIf="(inputText ?? '').length > 0" (click)="clearInput()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
   </div>
@@ -222,13 +158,9 @@
       <ul
         class="absolute flex m-0 h-auto pl-[20px]"
         [ngStyle]="{
-          'margin-top': 'calc(' + getSubTableMarginTop(i) + 'px - 3px)'
+          'margin-top': getSubTableMarginTop(i) + 'px'
         }"
-        *ngFor="
-          let widths of columnWidths;
-          let i = index;
-          trackBy: trackByIndex
-        "
+        *ngFor="let widths of columnWidths; let i = index; trackBy: trackByIndex"
       >
         <li
           *ngFor="let width of widths; let j = index; trackBy: trackByIndex"
@@ -262,7 +194,7 @@
       </ul>
     </div>
     <pre
-      class="h-auto px-4 py-2 overflow-auto rounded right-bottom leading-[15px]"
+      class="h-auto px-4 py-2 overflow-auto leading-[17px] rounded right-bottom text-sm"
       placeholder="Paste data here"
       [@fadeInOut]="uuid"
       >{{ outputText }}</pre
@@ -283,12 +215,10 @@
 <input type="checkbox" id="url-modal" class="modal-toggle" />
 <div class="modal">
   <div class="relative modal-box">
-    <label for="url-modal" class="absolute btn btn-sm btn-circle right-2 top-2"
-      >✕</label
-    >
+    <label for="url-modal" class="absolute btn btn-sm btn-circle right-2 top-2">✕</label>
     <div class="w-full form-control">
       <label class="w-full label">
-        <span class="label-text">Enter URL to fetch a JSON array:</span>
+        <span class="label-text">Enter URL to fetch a JSON array of objects:</span>
       </label>
       <input
         type="text"
@@ -300,9 +230,7 @@
       />
       <label class="label">
         <span class="label-text-alt"></span>
-        <span class="label-text-alt">{{
-          urlInput ? (isUrlInputValid ? 'Valid URL' : 'Invalid URL') : ''
-        }}</span>
+        <span class="label-text-alt">{{ urlInput ? (isUrlInputValid ? 'Valid URL' : 'Invalid URL') : '' }}</span>
       </label>
     </div>
     <div class="modal-action">

@@ -33,7 +33,7 @@ const initialOutput = `┌────────────────┬─
 const initialUrl = 'https://jsonplaceholder.typicode.com/albums';
 
 const fontString =
-  '16px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+  '14px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
 
 export const initialSettings = {
   input: initialInput,
