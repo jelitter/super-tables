@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { clean, isJsonArray, isValidJson, isValidUrl, toTitleCase } from '@util/string';
+import { clean, DASH, isJsonArray, isValidJson, isValidUrl, toTitleCase } from '@util/string';
 import { fadeInOut } from 'src/animations';
 import { JsonFetchService } from 'src/services/json-fetch.service';
 import { Alignment, getBorderCharacters, table } from 'table';
@@ -213,14 +213,22 @@ export class TablesComponent implements OnInit, AfterViewInit {
 
           const lineLength = Math.max(...rows.map((line: string) => line.split(separator).length));
 
-          const empty = this.showEmptyAsDash ? '—' : '';
+          const empty = this.showEmptyAsDash ? DASH : '';
 
           const data = rows
             .map((line: string) => [...line.split(separator), ...this.empties].slice(0, lineLength))
             .map(row => row.map(word => word.trim() || empty));
 
           this.columnHeaders[subTableIndex] = data[0];
+
           if (!this.selectedHeaders[subTableIndex]) {
+            this.selectedHeaders[subTableIndex] = data[0];
+          }
+
+          if (
+            this.selectedHeaders[subTableIndex]?.length !== data[0]?.length ||
+            this.selectedHeaders[subTableIndex].at(-1) === DASH
+          ) {
             this.selectedHeaders[subTableIndex] = data[0];
           }
 
@@ -319,6 +327,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
   }
 
   public clearInput() {
+    this.reset();
     this.setInput('');
   }
 

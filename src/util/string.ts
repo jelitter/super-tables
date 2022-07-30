@@ -27,3 +27,5 @@ export const clean = (text: string) => {
 export const isJsonArray = (json: string | null = ''): boolean => {
   return isValidJson(json) && (json ?? '').startsWith('[');
 };
+
+export const DASH = '—';

@@ -143,12 +143,15 @@
 
     <p class="text-sm">Add <code class="text">---</code> for horizontal divider</p>
   </form>
+
+  <!-- <div class="m-0 divider"></div> -->
+  <!-- <pre class="px-2 py-1 m-1 text-sm bg-slate-300">{{ selectedHeaders | json }}</pre> -->
 </div>
 
 <div class="w-1 m-0 divider divider-horizontal"></div>
 
 <div class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden relative" [@fadeInOut]>
-  <label for="url-modal" class="fixed mt-3 btn-sm btn modal-button right-14"> URL </label>
+  <label for="url-modal" class="fixed mt-3 btn-sm btn btn-accent modal-button right-14"> URL </label>
 
   <pre
     #input
