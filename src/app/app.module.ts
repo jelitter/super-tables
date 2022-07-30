@@ -6,12 +6,22 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AboutComponent } from '@components/about/about.component';
 import { TablesComponent } from '@components/tables/tables.component';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 @NgModule({
   declarations: [AppComponent, TablesComponent, AboutComponent],
-  imports: [AppRoutingModule, BrowserAnimationsModule, BrowserModule, CommonModule, FormsModule, HttpClientModule],
+  imports: [
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    BrowserModule,
+    CommonModule,
+    FormsModule,
+    HttpClientModule,
+    NgSelectModule,
+    FormsModule
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}
