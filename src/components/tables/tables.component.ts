@@ -230,7 +230,8 @@ export class TablesComponent implements OnInit, AfterViewInit {
             .map((line: string) => [...line.split(separator), ...this.empties].slice(0, lineLength))
             .map(row => row.map(word => word.trim() || empty));
 
-          const minCharWidth = this.showHeaderControls ? 6 : 3;
+          // const minCharWidth = this.showHeaderControls ? 6 : 3;
+          const minCharWidth = 6;
 
           const pxWidths = data.reduce(
             (acc, row) =>

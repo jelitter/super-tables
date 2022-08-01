@@ -190,7 +190,7 @@
         <div
           class="absolute transition-opacity"
           (mouseenter)="onMouseEnter(i)"
-          [ngStyle]="{ 'margin-top': 'calc(' + getSubTableMarginTop(i) + 'px + 21px)' }"
+          [ngStyle]="{ 'margin-top': 'calc(' + getSubTableMarginTop(i) + 'px + 26px)' }"
           [class.opacity-100]="showHeaderControls || hoveredSubTable === i"
           [ngClass]="{
             'opacity-0 pointer-events-none': !showHeaderControls && hoveredSubTable !== i,
@@ -227,45 +227,43 @@
         (mouseenter)="onMouseEnter(i)"
         (mouseleave)="onMouseLeave()"
       >
-        <li
-          *ngFor="let config of configs; let j = index; trackBy: trackByIndex"
-          [ngStyle]="{
-            width: (!isSelected(i, config) ? 0 : config.width.px + 16) + 'px',
-            height: 'calc(' + config.height + 'px + 8px)',
-            marginLeft: (j === 0 ? -8 : -16) + 'px'
-          }"
-          class="p-1 rounded opacity-0 inline-table mt-[-4px] transition-all"
-          [class.opacity-100]="showHeaderControls"
-          [ngClass]="{ 'hover:opacity-100 hover:bg-slate-400/20': !showHeaderControls }"
-        >
-          <div
-            class="justify-center btn-group flex-nowrap"
-            [@fadeInOut]="showHeaderControls"
+        <ng-container *ngFor="let config of configs; let j = index; trackBy: trackByIndex">
+          <li
             *ngIf="isSelected(i, config)"
+            [ngStyle]="{
+              width: config.width.px + 16 + 'px',
+              height: config.height + 16 + 'px',
+              marginLeft: (j === 0 ? -8 : -16) + 'px'
+            }"
+            class="rounded opacity-0 inline-table mt-[-4px] transition-all p-1"
+            [class.opacity-100]="showHeaderControls"
+            [ngClass]="{ 'hover:opacity-100 hover:bg-slate-400/20': !showHeaderControls }"
           >
-            <button
-              class="btn w-6 h-4 text-[10px] btn-square btn-xs rounded-l-full"
-              (click)="alignColumn(i, j, 'left')"
-              [class.btn-secondary]="getColumnAlignment(i, j) === 'left'"
-            >
-              <i class="fa-solid fa-align-left"></i>
-            </button>
-            <button
-              class="btn w-4 h-4 text-[10px] btn-square btn-xs rounded-none"
-              (click)="alignColumn(i, j, 'center')"
-              [class.btn-secondary]="getColumnAlignment(i, j) === 'center'"
-            >
-              <i class="fa-solid fa-align-center"></i>
-            </button>
-            <button
-              class="btn w-6 h-4 text-[10px] btn-square btn-xs rounded-r-full"
-              (click)="alignColumn(i, j, 'right')"
-              [class.btn-secondary]="getColumnAlignment(i, j) === 'right'"
-            >
-              <i class="fa-solid fa-align-right"></i>
-            </button>
-          </div>
-        </li>
+            <div class="justify-center btn-group flex-nowrap" [@fadeInOut]="showHeaderControls">
+              <button
+                class="btn w-6 h-4 text-[10px] btn-square btn-xs rounded-l-full"
+                (click)="alignColumn(i, j, 'left')"
+                [class.btn-secondary]="getColumnAlignment(i, j) === 'left'"
+              >
+                <i class="fa-solid fa-align-left"></i>
+              </button>
+              <button
+                class="btn w-4 h-4 text-[10px] btn-square btn-xs rounded-none"
+                (click)="alignColumn(i, j, 'center')"
+                [class.btn-secondary]="getColumnAlignment(i, j) === 'center'"
+              >
+                <i class="fa-solid fa-align-center"></i>
+              </button>
+              <button
+                class="btn w-6 h-4 text-[10px] btn-square btn-xs rounded-r-full"
+                (click)="alignColumn(i, j, 'right')"
+                [class.btn-secondary]="getColumnAlignment(i, j) === 'right'"
+              >
+                <i class="fa-solid fa-align-right"></i>
+              </button>
+            </div>
+          </li>
+        </ng-container>
       </ul>
     </div>
     <pre
