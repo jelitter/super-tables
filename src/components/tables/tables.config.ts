@@ -1,3 +1,5 @@
+import { getUuid } from '@util/string';
+
 const initialInput = `Name    Location    Powers
 Luke Skywalker    Tatooine    The Force
 Han Solo    Dagobah
@@ -41,3 +43,23 @@ export const initialSettings = {
   url: initialUrl,
   font: fontString
 };
+
+export type ColumnConfig = {
+  id: string;
+  index: number;
+  header: string;
+  width: {
+    px: number;
+    chars: number;
+  };
+};
+
+export const defaultColumnConfig = (): ColumnConfig => ({
+  id: getUuid(),
+  index: 0,
+  header: '',
+  width: {
+    px: 75,
+    chars: 5
+  }
+});

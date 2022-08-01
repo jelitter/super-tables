@@ -29,3 +29,5 @@ export const isJsonArray = (json: string | null = ''): boolean => {
 };
 
 export const DASH = '—';
+
+export const getUuid = (): string => crypto.randomUUID();

@@ -1,11 +1,9 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { clean, DASH, isJsonArray, isValidJson, isValidUrl, toTitleCase } from '@util/string';
+import { clean, DASH, getUuid, isJsonArray, isValidJson, isValidUrl, toTitleCase } from '@util/string';
 import { fadeInOut } from 'src/animations';
 import { JsonFetchService } from 'src/services/json-fetch.service';
 import { Alignment, getBorderCharacters, table } from 'table';
-import { initialSettings } from './tables.config';
-
-type ColWidth = { px: number; chars: number; hidden: boolean };
+import { ColumnConfig, defaultColumnConfig, initialSettings } from './tables.config';
 
 @Component({
   selector: 'app-tables',
@@ -40,17 +38,17 @@ export class TablesComponent implements OnInit, AfterViewInit {
   public allowMultipleTables = true;
   public border = 'norc';
   public borders = ['honeywell', 'norc', 'ramac', 'void'];
-  public columnWidths: ColWidth[][] = [];
-  public columnHeaders: string[][] = [];
-  public selectedHeaders: string[][] = [];
+  public columnConfigs: ColumnConfig[][] = [];
   public copied = false;
   public customSeparator: string = null!;
   public distance: number = 0;
   public inputText: string | null = initialSettings.input;
   public outputText: string = initialSettings.output;
   public previousOutputText: string = '';
+  public selectedColumns: string[][] = [];
   public separator: string = this.Separators.AUTO_DETECT;
   public showAllHorizontalLines = false;
+  public showDebug = false;
   public showEmptyAsDash = true;
   public showHeaderControls = true;
   public showHeaders = true;
@@ -88,8 +86,8 @@ export class TablesComponent implements OnInit, AfterViewInit {
     // this.rowHeight = this.getRowHeight('table');
     this.rowHeight = 17;
 
-    //  Alt + Shift + F (autoformat)
     document.addEventListener('keydown', event => {
+      //  Alt + Shift + F (autoformat)
       if (event.altKey && event.shiftKey && event.key === 'F') {
         let formattedInput = '';
         if (isValidJson(this.inputText)) {
@@ -100,6 +98,10 @@ export class TablesComponent implements OnInit, AfterViewInit {
         }
 
         this.setInput(formattedInput);
+      }
+      //  Alt + Shift + D (show debug info)
+      if (event.altKey && event.shiftKey && event.key === 'D') {
+        this.showDebug = !this.showDebug;
       }
     });
   }
@@ -118,7 +120,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
     this.distance = Math.abs(newValue.length - (this.inputText ?? '').length);
 
     if (this.distance > 100) {
-      this.uuid = crypto.getRandomValues(new Uint8Array(8)).toString();
+      this.uuid = getUuid();
       this.reset();
     }
 
@@ -133,7 +135,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
     }, 16);
   }
 
-  public onSelectedHeadersChanged() {
+  public onSelectedHeadersChanged(subTableIndex: number) {
     setTimeout(() => {
       this.drawTable();
     });
@@ -144,16 +146,15 @@ export class TablesComponent implements OnInit, AfterViewInit {
     this.drawTable();
   }
 
-  public isSelected(sep: string) {
-    return sep === this.separator;
+  public isSelected(subTableIndex: number, config: ColumnConfig) {
+    return this.selectedColumns[subTableIndex].includes(config.id);
   }
 
   private reset() {
     this.alignments = [];
     this.outputText = '';
-    this.columnWidths = [];
-    this.columnHeaders = [];
-    this.selectedHeaders = [];
+    this.columnConfigs = [];
+    this.selectedColumns = [];
     this.subTables = [];
   }
 
@@ -172,9 +173,11 @@ export class TablesComponent implements OnInit, AfterViewInit {
         this.previousOutputText = this.outputText;
         const outputs: string[] = [];
         this.subTables.length = texts.length;
-        this.columnWidths.length = texts.length;
-        this.columnHeaders.length = texts.length;
-        this.selectedHeaders.length = texts.length;
+        this.columnConfigs.length = texts.length;
+        this.selectedColumns.length = texts.length;
+
+        const separator =
+          this.customSeparator || this.separator === this.Separators.AUTO_DETECT ? this.getSeparator() : this.separator;
 
         texts.forEach((text, subTableIndex) => {
           const rows = (text ?? '').split(/\r?\n/);
@@ -200,16 +203,11 @@ export class TablesComponent implements OnInit, AfterViewInit {
                 dividers.includes(lineIndex)
               );
             },
-            columns: (this.columnWidths[subTableIndex] ??= []).map(() => ({
+            columns: (this.columnConfigs[subTableIndex] ??= []).map(() => ({
               alignment: 'left' as Alignment,
               width: 1
             }))
           };
-
-          const separator =
-            this.customSeparator || this.separator === this.Separators.AUTO_DETECT
-              ? this.getSeparator()
-              : this.separator;
 
           const lineLength = Math.max(...rows.map((line: string) => line.split(separator).length));
 
@@ -218,19 +216,6 @@ export class TablesComponent implements OnInit, AfterViewInit {
           const data = rows
             .map((line: string) => [...line.split(separator), ...this.empties].slice(0, lineLength))
             .map(row => row.map(word => word.trim() || empty));
-
-          this.columnHeaders[subTableIndex] = data[0];
-
-          if (!this.selectedHeaders[subTableIndex]) {
-            this.selectedHeaders[subTableIndex] = data[0];
-          }
-
-          if (
-            this.selectedHeaders[subTableIndex]?.length !== data[0]?.length ||
-            this.selectedHeaders[subTableIndex].at(-1) === DASH
-          ) {
-            this.selectedHeaders[subTableIndex] = data[0];
-          }
 
           const minCharWidth = this.showHeaderControls ? 6 : 3;
 
@@ -245,13 +230,31 @@ export class TablesComponent implements OnInit, AfterViewInit {
             [] as number[]
           );
 
-          this.columnWidths[subTableIndex] = pxWidths.map((px, i) => {
+          this.selectedColumns[subTableIndex] ??= [];
+          this.columnConfigs[subTableIndex] ??= [];
+
+          this.columnConfigs[subTableIndex] = data[0].map((header, i) => {
+            const existingId = this.columnConfigs?.[subTableIndex]?.[i]?.id;
+
+            const config = {
+              ...(this.columnConfigs[subTableIndex][i] ??= defaultColumnConfig()),
+              index: i,
+              header: header.trim(),
+              width: { px: pxWidths[i], chars: charWidths[i] }
+            };
+
+            if (!existingId) {
+              this.selectedColumns[subTableIndex].push(config.id);
+            }
+
+            return config;
+          });
+
+          this.columnConfigs[subTableIndex].forEach((column, i) => {
             config.columns[i] = {
               alignment: this.getColumnAlignment(subTableIndex, i),
               width: charWidths[i]
             };
-
-            return { px, chars: charWidths[i], hidden: false };
           });
 
           if (!this.alignments[subTableIndex]) {
@@ -262,7 +265,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
             ]);
           }
 
-          this.columnWidths.forEach((_, i) => {
+          this.columnConfigs.forEach((_, i) => {
             if (
               !this.alignments[subTableIndex].get('left')?.has(i) &&
               !this.alignments[subTableIndex].get('center')?.has(i) &&
@@ -272,20 +275,15 @@ export class TablesComponent implements OnInit, AfterViewInit {
             }
           });
 
-          const selectedHeaders = this.selectedHeaders[subTableIndex];
-          const renderColumnIndices = data[0]
-            .map((_, i) => (selectedHeaders.includes(data[0][i]) ? i : null))
-            .filter(n => n !== null);
+          const renderColumnIndices = this.columnConfigs[subTableIndex]
+            .filter(c => this.isSelected(subTableIndex, c))
+            .map(c => c.index);
 
           const filteredData = data.map(row => row.filter((_, i) => renderColumnIndices.includes(i)));
           const filteredConfig = {
             ...config,
             columns: config.columns.filter((_, i) => renderColumnIndices.includes(i))
           };
-
-          this.columnWidths[subTableIndex].forEach((columnWidth, j) => {
-            columnWidth.hidden = !renderColumnIndices.includes(j);
-          });
 
           const subTable = filteredData?.[0]?.length > 0 ? table(filteredData, filteredConfig) : '';
           this.subTables[subTableIndex] = subTable.split(/\r?\n/);
@@ -352,18 +350,8 @@ export class TablesComponent implements OnInit, AfterViewInit {
     return 'left' as Alignment;
   }
 
-  public copyToClipboard() {
-    const selBox = document.createElement('textarea');
-    selBox.style.position = 'fixed';
-    selBox.style.left = '0';
-    selBox.style.top = '0';
-    selBox.style.opacity = '0';
-    selBox.value = this.outputText;
-    document.body.appendChild(selBox);
-    selBox.focus();
-    selBox.select();
-    document.execCommand('copy');
-    document.body.removeChild(selBox);
+  public async copyToClipboard() {
+    await navigator.clipboard.writeText(this.outputText);
     this.copied = true;
     setTimeout(() => {
       this.copied = false;
@@ -411,7 +399,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
     return this.subTables[subTableIndex - 1].length * this.rowHeight + this.getSubTableMarginTop(subTableIndex - 1);
   }
 
-  public fetch = async () => {
+  public fetchUrl = async () => {
     if (!this.isUrlInputValid) {
       return;
     }
@@ -428,9 +416,9 @@ export class TablesComponent implements OnInit, AfterViewInit {
     }
 
     this.urlInput = '';
-    this.columnWidths = [];
-    this.columnHeaders = [];
-    this.selectedHeaders = [];
+    this.columnConfigs = [];
+    // this.columnHeaders = [];
+    // this.selectedHeaders = [];
     this.alignments = [];
   };
 
