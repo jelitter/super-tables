@@ -150,10 +150,13 @@
     </div>
   </form>
 
-  <ng-container *ngIf="showDebug" >
+  <ng-container *ngIf="showDebug">
     <div class="m-0 divider" [@fadeInOut]></div>
-    <div class="box-border flex flex-col h-full gap-1 m-1 overflow-hidden scroll-auto" >
-      <pre class="h-auto p-1 overflow-auto text-xs dark:text-black/90 bg-slate-300 min-h-[30%]">{{ selectedColumns | json }}</pre>
+    <div class="box-border flex flex-col h-full gap-1 m-1 overflow-hidden scroll-auto">
+      <div class="p-1 text-xs bg-slate-400">Hovered: {{ hoveredSubTable }}</div>
+      <pre class="h-auto p-1 overflow-auto text-xs dark:text-black/90 bg-slate-300 min-h-[30%]">{{
+        selectedColumns | json
+      }}</pre>
       <pre class="h-auto p-1 overflow-auto text-xs dark:text-black/90 bg-slate-400">{{ columnConfigs | json }}</pre>
     </div>
   </ng-container>
@@ -182,10 +185,19 @@
   <div class="h-1 m-0 divider"></div>
 
   <div class="relative overflow-auto">
-    <div class="absolute flex-col w-full ml-1 bg-scroll" *ngIf="showHeaderControls" [@fadeInOut]>
+    <div class="absolute flex-col w-full ml-1 bg-scroll columns-controls" [@fadeInOut]>
       <ng-container *ngFor="let configs of columnConfigs; let i = index; trackBy: trackByIndex">
-        <div class="absolute" [ngStyle]="{ 'margin-top': 'calc(' + getSubTableMarginTop(i) + 'px + 21px)' }">
-          <div class="dropdown">
+        <div
+          class="absolute transition-opacity"
+          (mouseenter)="onMouseEnter(i)"
+          [ngStyle]="{ 'margin-top': 'calc(' + getSubTableMarginTop(i) + 'px + 21px)' }"
+          [class.opacity-100]="showHeaderControls || hoveredSubTable === i"
+          [ngClass]="{
+            'opacity-0 pointer-events-none': !showHeaderControls && hoveredSubTable !== i,
+            'opacity-100 pointer-events-all': showHeaderControls || hoveredSubTable === i
+          }"
+        >
+          <div class="z-10 dropdown">
             <label tabindex="0" class="w-6 h-6 rounded-full btn btn-xs btn-primary">
               <i class="fa-solid fa-table-columns"></i>
             </label>
@@ -198,27 +210,33 @@
               [items]="configs"
               [bindLabel]="'header'"
               [bindValue]="'id'"
-              (ngModelChange)="onSelectedHeadersChanged(i)"
+              (ngModelChange)="onSelectedHeadersChanged()"
               [(ngModel)]="selectedColumns[i]"
             >
-              <!-- (close)="onSelectedHeadersChanged(i)" -->
-              <!-- (blur)="onSelectedHeadersChanged(i)" -->
             </ng-select>
           </div>
         </div>
       </ng-container>
     </div>
 
-    <div class="absolute w-full bg-scroll" *ngIf="showHeaderControls">
+    <div class="absolute w-full bg-scroll">
       <ul
         *ngFor="let configs of columnConfigs; let i = index; trackBy: trackByIndex"
         class="absolute flex m-0 h-auto pl-[20px]"
         [ngStyle]="{ 'margin-top': getSubTableMarginTop(i) + 'px' }"
+        (mouseenter)="onMouseEnter(i)"
+        (mouseleave)="onMouseLeave()"
       >
         <li
           *ngFor="let config of configs; let j = index; trackBy: trackByIndex"
-          [ngStyle]="{ width: (!isSelected(i, config) ? 0 : config.width.px) + 'px' }"
-          class="inline-table"
+          [ngStyle]="{
+            width: (!isSelected(i, config) ? 0 : config.width.px + 16) + 'px',
+            height: 'calc(' + config.height + 'px + 8px)',
+            marginLeft: (j === 0 ? -8 : -16) + 'px'
+          }"
+          class="p-1 rounded opacity-0 inline-table mt-[-4px] transition-all"
+          [class.opacity-100]="showHeaderControls"
+          [ngClass]="{ 'hover:opacity-100 hover:bg-slate-400/20': !showHeaderControls }"
         >
           <div
             class="justify-center btn-group flex-nowrap"
@@ -251,7 +269,7 @@
       </ul>
     </div>
     <pre
-      class="h-auto px-4 py-2 overflow-auto leading-[17px] rounded right-bottom text-sm"
+      class="h-auto p-4 overflow-auto leading-[17px] rounded right-bottom text-sm"
       placeholder="Paste data here"
       [@fadeInOut]="uuid"
       >{{ outputText }}</pre

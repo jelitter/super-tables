@@ -48,6 +48,7 @@ export type ColumnConfig = {
   id: string;
   index: number;
   header: string;
+  height: number;
   width: {
     px: number;
     chars: number;
@@ -58,6 +59,7 @@ export const defaultColumnConfig = (): ColumnConfig => ({
   id: getUuid(),
   index: 0,
   header: '',
+  height: 15,
   width: {
     px: 75,
     chars: 5

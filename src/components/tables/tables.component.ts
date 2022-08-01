@@ -19,6 +19,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
   private empties: string[] = new Array(100).fill('');
   private rowHeight: number = 0;
   private timeout?: NodeJS.Timeout;
+  private textWidths: Map<number, number> = new Map();
 
   public Separators = {
     AUTO_DETECT: 'auto',
@@ -42,6 +43,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
   public copied = false;
   public customSeparator: string = null!;
   public distance: number = 0;
+  public hoveredSubTable: number | null = null;
   public inputText: string | null = initialSettings.input;
   public outputText: string = initialSettings.output;
   public previousOutputText: string = '';
@@ -50,7 +52,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
   public showAllHorizontalLines = false;
   public showDebug = false;
   public showEmptyAsDash = true;
-  public showHeaderControls = true;
+  public showHeaderControls = false;
   public showHeaders = true;
   public subTables: string[][] = [];
   public urlInput = initialSettings.url;
@@ -83,7 +85,6 @@ export class TablesComponent implements OnInit, AfterViewInit {
   public ngOnInit(): void {
     this.context = this.canvas.getContext('2d');
     this.context!.font = initialSettings.font;
-    // this.rowHeight = this.getRowHeight('table');
     this.rowHeight = 17;
 
     document.addEventListener('keydown', event => {
@@ -135,10 +136,22 @@ export class TablesComponent implements OnInit, AfterViewInit {
     }, 16);
   }
 
-  public onSelectedHeadersChanged(subTableIndex: number) {
+  public onSelectedHeadersChanged() {
     setTimeout(() => {
       this.drawTable();
     });
+  }
+
+  public onMouseEnter(index: number) {
+    this.debounceFunction(() => {
+      this.hoveredSubTable = index;
+    }, 100);
+  }
+
+  public onMouseLeave() {
+    this.debounceFunction(() => {
+      this.hoveredSubTable = null;
+    }, 100);
   }
 
   public setSeparator(sep: string) {
@@ -288,6 +301,10 @@ export class TablesComponent implements OnInit, AfterViewInit {
           const subTable = filteredData?.[0]?.length > 0 ? table(filteredData, filteredConfig) : '';
           this.subTables[subTableIndex] = subTable.split(/\r?\n/);
 
+          this.columnConfigs[subTableIndex].forEach(
+            c => (c.height = (this.rowHeight - 1) * this.subTables[subTableIndex].length)
+          );
+
           outputs.push(subTable);
         });
 
@@ -375,9 +392,16 @@ export class TablesComponent implements OnInit, AfterViewInit {
     }
   }
 
-  public getTextWidth(text: string) {
+  public getTextWidth(text: string): number {
+    if (this.textWidths.has(text.length)) {
+      return this.textWidths.get(text.length) ?? 0;
+    }
+
     if (this.context) {
       const width = Math.floor(this.context.measureText(text).width);
+
+      this.textWidths.set(text.length, width);
+
       return width;
     }
     return 0;
@@ -393,7 +417,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
 
   public getSubTableMarginTop(subTableIndex: number): number {
     if (subTableIndex === 0) {
-      return -2;
+      return 2;
     }
 
     return this.subTables[subTableIndex - 1].length * this.rowHeight + this.getSubTableMarginTop(subTableIndex - 1);
