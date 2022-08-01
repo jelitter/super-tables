@@ -303,7 +303,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
           this.subTables[subTableIndex] = subTable.split(/\r?\n/);
 
           this.columnConfigs[subTableIndex].forEach(
-            c => (c.height = (this.rowHeight - 1) * this.subTables[subTableIndex].length)
+            c => (c.height = this.rowHeight * (this.subTables[subTableIndex].length - 1))
           );
 
           outputs.push(subTable);
