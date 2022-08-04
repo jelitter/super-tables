@@ -11,4 +11,8 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
     white-space: break-spaces;
   }
+
+  #input-text:empty {
+    content: 'Enter text here';
+  }
 }

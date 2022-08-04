@@ -1,7 +1,7 @@
 <div class="box-border flex flex-col min-w-[15.75rem] w-[15.75rem] h-full overflow-hidden text-sm left" [@fadeInOut]>
   <form [noValidate]="true" (change)="onSettingsChange()" class="flex flex-col">
     <div class="flex flex-col gap-1 p-2 pb-1 settings">
-      <label for="layout" class="flex gap-2 cursor-pointer">
+      <label for="layout" class="flex h-6 gap-2 rounded-full cursor-pointer hover:bg-slate-500/10">
         <label
           class="w-8 h-5 transition-colors bg-white border rounded-full dark:bg-transparent swap swap-rotate text-primary border-primary"
         >
@@ -25,8 +25,6 @@
         </label>
         <span class="cursor-pointer text">{{ isVertical ? 'Vertical' : 'Horizontal' }} layout</span>
       </label>
-      <!-- <label for="layout" class="cursor-pointer">
-          {{ layout ? 'Vertical' : 'Horizontal' }} layout</label> -->
 
       <label class="flex items-center h-6 gap-2 text-sm align-middle rounded-full cursor-pointer hover:bg-slate-500/10">
         <input
@@ -207,7 +205,18 @@
     (input)="onInputChanged($event)"
   ></div>
 
-  <div
+  <button
+    class="absolute transition-all btn btn-circle top-4 btn-xs"
+    [ngClass]="{ ' right-6': isVertical, 'right-[calc(50%+1rem)]': !isVertical }"
+    *ngIf="(inputText ?? '').length > 0"
+    (click)="clearInput()"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+
+  <!-- <div
     class="relative flex justify-center transition-transform top-4 tooltip tooltip-left tooltip-info"
     data-tip="Clear input"
     [ngClass]="{ 'translate-x-full': isVertical, 'translate-x-1/2': !isVertical }"
@@ -217,15 +226,15 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
-  </div>
+  </div> -->
 
   <!-- <div class="h-1 m-0 divider"></div> -->
 
   <div
     class="relative w-full overflow-auto transition-transform h-1/2"
     [ngClass]="{
-      'h-1/2 translate-y-full border-t-slate-500/50 border-t-2': isVertical,
-      'w-1/2 translate-x-full border-l-slate-500/50 border-l-2': !isVertical
+      'h-1/2 translate-y-full border-t-slate-500/20 border-t-2': isVertical,
+      'w-1/2 translate-x-full border-l-slate-500/20 border-l-2': !isVertical
     }"
   >
     <div class="absolute flex-col w-full h-full ml-1 bg-scroll columns-controls" [@fadeInOut]>
@@ -246,7 +255,7 @@
             </label>
             <ng-select
               tabindex="0"
-              class="w-fit min-w-[300px] h-8 dropdown-content "
+              class="w-fit min-w-[300px] h-8 dropdown-content"
               [appearance]="'headers'"
               [closeOnSelect]="false"
               [multiple]="true"
