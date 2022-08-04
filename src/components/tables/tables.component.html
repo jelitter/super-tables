@@ -1,7 +1,7 @@
 <div class="box-border flex flex-col min-w-[15.75rem] w-[15.75rem] h-full overflow-hidden text-sm left" [@fadeInOut]>
   <form [noValidate]="true" (change)="onSettingsChange()" class="flex flex-col">
     <div class="flex flex-col gap-1 p-2 pb-1 settings">
-      <label for="layout" class="flex h-6 gap-2 rounded-full cursor-pointer hover:bg-slate-500/10">
+      <label for="layout" class="flex items-center h-6 gap-2 rounded-full cursor-pointer hover:bg-slate-500/10">
         <label
           class="w-8 h-5 transition-colors bg-white border rounded-full dark:bg-transparent swap swap-rotate text-primary border-primary"
         >
@@ -194,19 +194,20 @@
 
 <!-- <div class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden relative" [@fadeInOut]> -->
 <div class="relative flex w-full p-0 overflow-hidden right" [@fadeInOut]>
-  <label for="url-modal" class="fixed mt-3 btn-sm btn btn-accent modal-button right-14"> URL </label>
+  <label for="url-modal" class="fixed z-30 mt-3 btn-sm btn btn-accent modal-button right-14"> URL </label>
 
   <div
     #input
     id="input-text"
     class="absolute px-4 py-2 overflow-auto text-sm transition-all right-top outline-0 :active:border-2"
+    [@fadeInOut]
     [ngClass]="{ 'w-full h-1/2': isVertical, 'w-1/2 h-full': !isVertical }"
     contenteditable="true"
     (input)="onInputChanged($event)"
   ></div>
 
   <button
-    class="absolute transition-all btn btn-circle top-4 btn-xs"
+    class="absolute transition-all opacity-50 btn btn-circle top-4 btn-xs hover:opacity-90"
     [ngClass]="{ ' right-6': isVertical, 'right-[calc(50%+1rem)]': !isVertical }"
     *ngIf="(inputText ?? '').length > 0"
     (click)="clearInput()"

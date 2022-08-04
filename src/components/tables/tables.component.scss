@@ -1,10 +1,10 @@
 :host {
+  --row-height: 15.6px;
+
   height: 100%;
   width: 100%;
   display: flex;
   overflow: hidden;
-
-  --row-height: 15.6px;
 
   #input-text,
   #output-text {
@@ -12,7 +12,8 @@
     white-space: break-spaces;
   }
 
-  #input-text:empty {
+  #input-text:empty::after {
     content: 'Enter text here';
+    opacity: 0.5;
   }
 }
