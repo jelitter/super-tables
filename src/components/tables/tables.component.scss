@@ -5,4 +5,10 @@
   overflow: hidden;
 
   --row-height: 15.6px;
+
+  #input-text,
+  #output-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    white-space: break-spaces;
+  }
 }

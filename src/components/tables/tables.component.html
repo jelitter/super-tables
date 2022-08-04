@@ -1,6 +1,31 @@
 <div class="box-border flex flex-col min-w-[15.75rem] w-[15.75rem] h-full overflow-hidden text-sm left" [@fadeInOut]>
   <form [noValidate]="true" (change)="onSettingsChange()" class="flex flex-col">
     <div class="flex flex-col gap-1 p-2 pb-1 settings">
+      <label for="layout" class="flex gap-2 cursor-pointer">
+        <label class="w-8 h-5 bg-white dark:bg-transparent border rounded-full swap swap-rotate text-primary border-primary transition-colors">
+          <input type="checkbox" [(ngModel)]="isVertical" name="layout" id="layout" />
+          <svg class="w-6 h-6 swap-on" viewBox="-4 -4 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M1.5 2H13.5C13.7761 2 14 2.22386 14 2.5V7H1V2.5C1 2.22386 1.22386 2 1.5 2ZM1 8V12.5C1 12.7761 1.22386 13 1.5 13H13.5C13.7761 13 14 12.7761 14 12.5V8H1ZM0 2.5C0 1.67157 0.671573 1 1.5 1H13.5C14.3284 1 15 1.67157 15 2.5V12.5C15 13.3284 14.3284 14 13.5 14H1.5C0.671573 14 0 13.3284 0 12.5V2.5Z"
+              fill="currentColor"
+            />
+          </svg>
+          <svg class="w-6 h-6 swap-off" viewBox="-4 -4 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M8 2H13.5C13.7761 2 14 2.22386 14 2.5V12.5C14 12.7761 13.7761 13 13.5 13H8V2ZM7 2H1.5C1.22386 2 1 2.22386 1 2.5V12.5C1 12.7761 1.22386 13 1.5 13H7V2ZM0 2.5C0 1.67157 0.671573 1 1.5 1H13.5C14.3284 1 15 1.67157 15 2.5V12.5C15 13.3284 14.3284 14 13.5 14H1.5C0.671573 14 0 13.3284 0 12.5V2.5Z"
+              fill="currentColor"
+            />
+          </svg>
+        </label>
+        <span class="cursor-pointer text">{{ isVertical ? 'Vertical' : 'Horizontal' }} layout</span>
+      </label>
+      <!-- <label for="layout" class="cursor-pointer">
+          {{ layout ? 'Vertical' : 'Horizontal' }} layout</label> -->
+
       <label class="flex items-center h-6 gap-2 text-sm align-middle rounded-full cursor-pointer hover:bg-slate-500/10">
         <input
           type="checkbox"
@@ -153,7 +178,10 @@
   <ng-container *ngIf="showDebug">
     <div class="m-0 divider" [@fadeInOut]></div>
     <div class="box-border flex flex-col h-full gap-1 m-1 overflow-hidden scroll-auto">
-      <div class="p-1 text-xs dark:text-black/90 bg-slate-400 ">Hovered: {{ hoveredSubTable }}</div>
+      <div class="p-1 text-xs dark:text-black/90 bg-slate-400">
+        <div>Hovered: {{ hoveredSubTable }}</div>
+        <div>isVertical: {{ isVertical }}</div>
+      </div>
       <pre class="h-auto p-1 overflow-auto text-xs dark:text-black/90 bg-slate-300 min-h-[30%]">{{
         selectedColumns | json
       }}</pre>
@@ -164,28 +192,41 @@
 
 <div class="w-1 m-0 divider divider-horizontal"></div>
 
-<div class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden relative" [@fadeInOut]>
+<!-- <div class="right p-0 grid grid-rows-[1fr_2px_1fr] gap-2 w-full overflow-hidden relative" [@fadeInOut]> -->
+<div class="relative flex w-full p-0 overflow-hidden right" [@fadeInOut]>
   <label for="url-modal" class="fixed mt-3 btn-sm btn btn-accent modal-button right-14"> URL </label>
 
-  <pre
+  <div
     #input
-    class="px-4 py-2 overflow-auto text-sm rounded right-top outline-0 :active:border-2"
+    id="input-text"
+    class="absolute px-4 py-2 overflow-auto text-sm transition-all right-top outline-0 :active:border-2 bg-slate-300/10"
+    [ngClass]="{ 'w-full h-1/2': isVertical, 'w-1/2 h-full': !isVertical }"
     contenteditable="true"
     (input)="onInputChanged($event)"
-  ></pre>
+  ></div>
 
-  <div class="absolute flex justify-center top-4 right-4 tooltip tooltip-left tooltip-info" data-tip="Clear input">
-    <button class="btn btn-circle btn-xs" *ngIf="(inputText ?? '').length > 0" (click)="clearInput()">
+  <div
+    class="relative flex justify-center transition-transform top-4 tooltip tooltip-left tooltip-info"
+    data-tip="Clear input"
+    [ngClass]="{ 'translate-x-full': isVertical, 'translate-x-1/2': !isVertical }"
+  >
+    <button class="absolute mr-10 btn btn-circle btn-xs" *ngIf="(inputText ?? '').length > 0" (click)="clearInput()">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
   </div>
 
-  <div class="h-1 m-0 divider"></div>
+  <!-- <div class="h-1 m-0 divider"></div> -->
 
-  <div class="relative overflow-auto">
-    <div class="absolute flex-col w-full ml-1 bg-scroll columns-controls" [@fadeInOut]>
+  <div
+    class="relative w-full overflow-auto transition-transform h-1/2"
+    [ngClass]="{
+      'h-1/2 translate-y-full border-t-slate-300 border-t-2': isVertical,
+      'w-1/2 translate-x-full border-l-slate-300 border-l-2': !isVertical
+    }"
+  >
+    <div class="absolute flex-col w-full h-full ml-1 bg-scroll columns-controls" [@fadeInOut]>
       <ng-container *ngFor="let configs of columnConfigs; let i = index; trackBy: trackByIndex">
         <div
           class="absolute transition-opacity"
@@ -197,7 +238,7 @@
             'opacity-100 pointer-events-all': showHeaderControls || hoveredSubTable === i
           }"
         >
-          <div class="z-10 dropdown">
+          <div class="z-20 dropdown">
             <label tabindex="0" class="w-6 h-6 rounded-full btn btn-xs btn-primary">
               <i class="fa-solid fa-table-columns"></i>
             </label>
@@ -219,7 +260,7 @@
       </ng-container>
     </div>
 
-    <div class="absolute w-full bg-scroll">
+    <div class="absolute z-10 w-full h-full bg-scroll">
       <ul
         *ngFor="let configs of columnConfigs; let i = index; trackBy: trackByIndex"
         class="absolute flex m-0 h-auto pl-[20px]"
@@ -266,12 +307,13 @@
         </ng-container>
       </ul>
     </div>
-    <pre
-      class="h-auto p-4 overflow-auto leading-[17px] rounded right-bottom text-sm"
-      placeholder="Paste data here"
+
+    <div
+      id="output-text"
+      class="absolute w-full h-full p-4 overflow-auto text-sm leading-[17px] transition-all right-bottom border-slate-500 bg-slate-300/10 inline-table"
+      [class.dark:text-green-500]="copied"
       [@fadeInOut]="uuid"
-      >{{ outputText }}</pre
-    >
+    >{{ outputText }}</div>
   </div>
 
   <button
@@ -285,7 +327,7 @@
   </button>
 </div>
 
-<input type="checkbox" id="url-modal" class="modal-toggle" />
+<input type="checkbox" id="url-modal" class="absolute modal-toggle" />
 <div class="modal">
   <div class="relative modal-box">
     <label for="url-modal" class="absolute btn btn-sm btn-circle right-2 top-2">✕</label>

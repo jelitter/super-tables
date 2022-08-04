@@ -57,6 +57,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
   public subTables: string[][] = [];
   public urlInput = initialSettings.url;
   public uuid: string = '';
+  public isVertical = true;
 
   get isUrlInputValid(): boolean {
     return isValidUrl((this.urlInput ?? '').trim());
@@ -373,7 +374,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
     this.copied = true;
     setTimeout(() => {
       this.copied = false;
-    }, 1500);
+    }, 1000);
   }
 
   private debounceFunction(func: CallableFunction, wait = 100, immediate = false) {

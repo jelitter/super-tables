@@ -17,7 +17,6 @@ const initialOutput = `┌────────────────┬─
 │ Name           │ Location │ Powers    │
 ├────────────────┼──────────┼───────────┤
 │ Luke Skywalker │ Tatooine │ The Force │
-│ Han Solo       │ Dagobah  │ —         │
 │ R2-D2          │ Naboo    │ —         │
 │ Leia Organa    │ Alderaan │ —         │
 └────────────────┴──────────┴───────────┘
