@@ -2,7 +2,9 @@
   <form [noValidate]="true" (change)="onSettingsChange()" class="flex flex-col">
     <div class="flex flex-col gap-1 p-2 pb-1 settings">
       <label for="layout" class="flex gap-2 cursor-pointer">
-        <label class="w-8 h-5 bg-white dark:bg-transparent border rounded-full swap swap-rotate text-primary border-primary transition-colors">
+        <label
+          class="w-8 h-5 transition-colors bg-white border rounded-full dark:bg-transparent swap swap-rotate text-primary border-primary"
+        >
           <input type="checkbox" [(ngModel)]="isVertical" name="layout" id="layout" />
           <svg class="w-6 h-6 swap-on" viewBox="-4 -4 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -199,7 +201,7 @@
   <div
     #input
     id="input-text"
-    class="absolute px-4 py-2 overflow-auto text-sm transition-all right-top outline-0 :active:border-2 bg-slate-300/10"
+    class="absolute px-4 py-2 overflow-auto text-sm transition-all right-top outline-0 :active:border-2"
     [ngClass]="{ 'w-full h-1/2': isVertical, 'w-1/2 h-full': !isVertical }"
     contenteditable="true"
     (input)="onInputChanged($event)"
@@ -222,8 +224,8 @@
   <div
     class="relative w-full overflow-auto transition-transform h-1/2"
     [ngClass]="{
-      'h-1/2 translate-y-full border-t-slate-300 border-t-2': isVertical,
-      'w-1/2 translate-x-full border-l-slate-300 border-l-2': !isVertical
+      'h-1/2 translate-y-full border-t-slate-500/50 border-t-2': isVertical,
+      'w-1/2 translate-x-full border-l-slate-500/50 border-l-2': !isVertical
     }"
   >
     <div class="absolute flex-col w-full h-full ml-1 bg-scroll columns-controls" [@fadeInOut]>
@@ -238,13 +240,13 @@
             'opacity-100 pointer-events-all': showHeaderControls || hoveredSubTable === i
           }"
         >
-          <div class="z-20 dropdown">
+          <div class="z-40 dropdown">
             <label tabindex="0" class="w-6 h-6 rounded-full btn btn-xs btn-primary">
               <i class="fa-solid fa-table-columns"></i>
             </label>
             <ng-select
               tabindex="0"
-              class="w-fit min-w-[300px] h-8 dropdown-content"
+              class="w-fit min-w-[300px] h-8 dropdown-content "
               [appearance]="'headers'"
               [closeOnSelect]="false"
               [multiple]="true"
@@ -256,6 +258,30 @@
             >
             </ng-select>
           </div>
+        </div>
+
+        <div
+          class="absolute w-8 transition-all"
+          [ngStyle]="{
+            height: configs[0].height + 'px)',
+            'margin-top': configs[0].height - 20 + 'px',
+            'margin-left': getSubTableWidth(i) + 'px'
+          }"
+        >
+          <button
+            class="relative z-20 w-8 h-6 transition-all rounded btn btn-primary btn-xs"
+            [class.btn-success]="copiedSubTable === i"
+            (mouseenter)="onMouseEnter(i)"
+            [ngStyle]="{ 'margin-top': 'calc(' + getSubTableMarginTop(i) + 'px)' }"
+            [class.opacity-100]="showHeaderControls || hoveredSubTable === i"
+            [ngClass]="{
+              'opacity-0 pointer-events-none': !showHeaderControls && hoveredSubTable !== i,
+              'opacity-100 pointer-events-all': showHeaderControls || hoveredSubTable === i
+            }"
+            (click)="copySubTable(i)"
+          >
+            <i class="fas fa-copy"></i>
+          </button>
         </div>
       </ng-container>
     </div>
@@ -278,7 +304,9 @@
             }"
             class="rounded opacity-0 inline-table mt-[-4px] transition-all p-1"
             [class.opacity-100]="showHeaderControls"
-            [ngClass]="{ 'hover:opacity-100 hover:bg-slate-400/20': !showHeaderControls }"
+            [ngClass]="{
+              'hover:opacity-100 hover:bg-slate-300/20 dark:hover:bg-slate-500/20 drop-shadow': !showHeaderControls
+            }"
           >
             <div class="justify-center btn-group flex-nowrap" [@fadeInOut]="showHeaderControls">
               <button
@@ -310,14 +338,14 @@
 
     <div
       id="output-text"
-      class="absolute w-full h-full p-4 overflow-auto text-sm leading-[17px] transition-all right-bottom border-slate-500 bg-slate-300/10 inline-table"
+      class="absolute w-full h-full p-4 overflow-auto text-sm leading-[17px] transition-all right-bottom border-slate-500 inline-table"
       [class.dark:text-green-500]="copied"
       [@fadeInOut]="uuid"
     >{{ outputText }}</div>
   </div>
 
   <button
-    class="absolute gap-2 opacity-0 btn btn-primary btn-sm bottom-4 right-4 w-28"
+    class="absolute gap-2 transition-colors opacity-0 btn btn-primary btn-sm bottom-4 right-4 w-28"
     [class.opacity-100]="outputText.length > 0"
     [class.btn-success]="copied"
     (click)="copyToClipboard()"

@@ -20,6 +20,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
   private rowHeight: number = 0;
   private timeout?: NodeJS.Timeout;
   private textWidths: Map<number, number> = new Map();
+  private subTableWidths: Map<number, number> = new Map();
 
   public Separators = {
     AUTO_DETECT: 'auto',
@@ -41,10 +42,12 @@ export class TablesComponent implements OnInit, AfterViewInit {
   public borders = ['honeywell', 'norc', 'ramac', 'void'];
   public columnConfigs: ColumnConfig[][] = [];
   public copied = false;
+  public copiedSubTable: number | null = null;
   public customSeparator: string = null!;
   public distance: number = 0;
   public hoveredSubTable: number | null = null;
   public inputText: string | null = initialSettings.input;
+  public isVertical = true;
   public outputText: string = initialSettings.output;
   public previousOutputText: string = '';
   public selectedColumns: string[][] = [];
@@ -57,7 +60,6 @@ export class TablesComponent implements OnInit, AfterViewInit {
   public subTables: string[][] = [];
   public urlInput = initialSettings.url;
   public uuid: string = '';
-  public isVertical = true;
 
   get isUrlInputValid(): boolean {
     return isValidUrl((this.urlInput ?? '').trim());
@@ -170,6 +172,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
     this.columnConfigs = [];
     this.selectedColumns = [];
     this.subTables = [];
+    this.subTableWidths.clear();
   }
 
   private drawTable() {
@@ -377,6 +380,14 @@ export class TablesComponent implements OnInit, AfterViewInit {
     }, 1000);
   }
 
+  public async copySubTable(subTableIndex: number) {
+    await navigator.clipboard.writeText(this.subTables[subTableIndex].join('\n'));
+    this.copiedSubTable = subTableIndex;
+    setTimeout(() => {
+      this.copiedSubTable = null;
+    }, 1000);
+  }
+
   private debounceFunction(func: CallableFunction, wait = 100, immediate = false) {
     const later = () => {
       this.timeout = undefined;
@@ -423,6 +434,21 @@ export class TablesComponent implements OnInit, AfterViewInit {
     }
 
     return this.subTables[subTableIndex - 1].length * this.rowHeight + this.getSubTableMarginTop(subTableIndex - 1);
+  }
+
+  public getSubTableWidth(subTableIndex: number): number {
+    return this.columnConfigs[subTableIndex]
+      .filter(t => this.selectedColumns[subTableIndex].includes(t.id))
+      .reduce((acc, c) => acc + c.width.px, 20);
+
+    // if (!this.subTableWidths.has(subTableIndex)) {
+    //   const width = this.columnConfigs[subTableIndex]
+    //     .filter(t => this.selectedColumns[subTableIndex].includes(t.id))
+    //     .reduce((acc, c) => acc + c.width.px, 0);
+    //   this.subTableWidths.set(subTableIndex, width + 20);
+    // }
+
+    // return this.subTableWidths.get(subTableIndex) ?? 0;
   }
 
   public fetchUrl = async () => {
