@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AboutComponent } from '@components/about/about.component';
 import { TablesComponent } from '@components/tables/tables.component';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { NgParticlesModule } from 'ng-particles';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
@@ -18,9 +19,10 @@ import { AppComponent } from './app.component';
     BrowserModule,
     CommonModule,
     FormsModule,
+    FormsModule,
     HttpClientModule,
-    NgSelectModule,
-    FormsModule
+    NgParticlesModule,
+    NgSelectModule
   ],
   bootstrap: [AppComponent]
 })
