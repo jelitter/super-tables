@@ -5,7 +5,11 @@
   "projects": {
     "tables": {
       "projectType": "application",
-      "schematics": { "@schematics/angular:component": { "style": "scss" } },
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -19,14 +23,19 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": ["src/favicon.ico", "src/assets"],
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
             "styles": [
               "node_modules/@ng-select/ng-select/themes/default.theme.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.css",
               "src/styles.scss"
             ],
             "scripts": [],
-            "allowedCommonJsDependencies": ["table"]
+            "allowedCommonJsDependencies": [
+              "table"
+            ]
           },
           "configurations": {
             "production": {
@@ -87,17 +96,39 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "inlineStyleLanguage": "scss",
-            "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/styles.scss"],
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
             "scripts": []
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
-          "options": { "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"] }
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
   },
-  "cli": { "schematicCollections": ["@angular-eslint/schematics"] }
+  "cli": {
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
+  },
+  "schematics": {
+    "@angular-eslint/schematics:application": {
+      "setParserOptionsProject": true
+    },
+    "@angular-eslint/schematics:library": {
+      "setParserOptionsProject": true
+    }
+  }
 }

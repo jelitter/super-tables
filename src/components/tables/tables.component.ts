@@ -78,7 +78,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
 
     const entry = Object.entries(this.Separators).find(entry => entry[1] === sep);
 
-    const result = entry?.[0] ?? '';
+    const result = this.customSeparator ? 'CUSTOM' : entry?.[0] ?? '';
 
     return toTitleCase(result);
   }
