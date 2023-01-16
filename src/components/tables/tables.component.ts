@@ -78,7 +78,7 @@ export class TablesComponent implements OnInit, AfterViewInit {
 
     const entry = Object.entries(this.Separators).find(entry => entry[1] === sep);
 
-    const result = this.customSeparator ? 'CUSTOM' : entry?.[0] ?? '';
+    const result = this.customSeparator ? `"${this.customSeparator}"` : entry?.[0] ?? '';
 
     return toTitleCase(result);
   }
@@ -194,7 +194,8 @@ export class TablesComponent implements OnInit, AfterViewInit {
         this.selectedColumns.length = texts.length;
 
         const separator =
-          this.customSeparator || this.separator === this.Separators.AUTO_DETECT ? this.getSeparator() : this.separator;
+          this.customSeparator ||
+          (this.separator === this.Separators.AUTO_DETECT ? this.getSeparator() : this.separator);
 
         texts.forEach((text, subTableIndex) => {
           const rows = (text ?? '').split(/\r?\n/);

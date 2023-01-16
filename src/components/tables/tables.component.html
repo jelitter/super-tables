@@ -100,7 +100,8 @@
       <label class="p-0 cursor-pointer label">
         <span class="h-5 label-text"
           >Separator: <span class="italic">{{ activeSeparator }}</span>
-          <span *ngIf="separator === Separators.AUTO_DETECT" class="text-2xs"> (auto)</span>
+          <span [@fadeInOut] *ngIf="separator === Separators.AUTO_DETECT && !customSeparator" class="absolute ml-2 text-2xs"> (auto)</span>
+          <span [@fadeInOut] *ngIf="customSeparator" class="absolute ml-2 text-2xs"> (custom)</span>
         </span>
       </label>
       <div class="justify-center h-10 overflow-hidden btn-group">
