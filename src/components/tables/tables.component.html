@@ -100,7 +100,11 @@
       <label class="p-0 cursor-pointer label">
         <span class="h-5 label-text"
           >Separator: <span class="italic">{{ activeSeparator }}</span>
-          <span [@fadeInOut] *ngIf="separator === Separators.AUTO_DETECT && !customSeparator" class="absolute ml-2 text-2xs"> (auto)</span>
+          <span
+            [@fadeInOut]
+            *ngIf="separator === Separators.AUTO_DETECT && !customSeparator"
+            class="absolute ml-2 text-2xs"
+          >(auto)</span>
           <span [@fadeInOut] *ngIf="customSeparator" class="absolute ml-2 text-2xs"> (custom)</span>
         </span>
       </label>
@@ -239,7 +243,7 @@
       'w-1/2 translate-x-full border-l-slate-500/20 border-l-2': !isVertical
     }"
   >
-    <div class="absolute flex-col w-full h-full ml-1 bg-scroll columns-controls" [@fadeInOut]>
+    <div class="absolute flex-col w-full h-full bg-scroll columns-controls" [@fadeInOut]>
       <ng-container *ngFor="let configs of columnConfigs; let i = index; trackBy: trackByIndex">
         <div
           class="absolute transition-opacity"
@@ -280,7 +284,7 @@
           }"
         >
           <button
-            class="relative z-20 w-8 h-6 transition-all rounded btn btn-primary btn-xs"
+            class="relative z-20 w-8 h-6 ml-2 transition-all rounded btn btn-primary btn-xs"
             [class.btn-success]="copiedSubTable === i"
             (mouseenter)="onMouseEnter(i)"
             [ngStyle]="{ 'margin-top': 'calc(' + getSubTableMarginTop(i) + 'px)' }"
