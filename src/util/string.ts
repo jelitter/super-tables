@@ -5,8 +5,8 @@ export const toTitleCase = (words: string) =>
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-export const isValidUrl = (url: string) =>
-  /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/.test(url);
+export const isValidUrl = (url?: string | null) =>
+  /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/.test(url ?? '');
 
 export const isValidJson = (json: string | null = '') => {
   try {

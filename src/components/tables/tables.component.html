@@ -361,6 +361,7 @@
 
   <button
     class="absolute gap-2 transition-colors opacity-0 btn btn-primary btn-sm bottom-4 right-4 w-28"
+    id="copy-button"
     [class.opacity-100]="outputText.length > 0"
     [class.btn-success]="copied"
     (click)="copyToClipboard()"

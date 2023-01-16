@@ -11,7 +11,7 @@ import { particlesConfig } from '../assets/particlesjs-config';
   animations: [fadeInOut(300)]
 })
 export class AppComponent implements OnInit {
-  public title = 'tables';
+  public title = 'Super Tables';
   public isDarkMode = false;
   public opts = particlesConfig;
 

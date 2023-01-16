@@ -48,10 +48,7 @@ export type ColumnConfig = {
   index: number;
   header: string;
   height: number;
-  width: {
-    px: number;
-    chars: number;
-  };
+  width: { px: number; chars: number };
 };
 
 export const defaultColumnConfig = (): ColumnConfig => ({
@@ -59,8 +56,5 @@ export const defaultColumnConfig = (): ColumnConfig => ({
   index: 0,
   header: '',
   height: 15,
-  width: {
-    px: 75,
-    chars: 5
-  }
+  width: { px: 75, chars: 5 }
 });
